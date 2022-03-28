@@ -1,0 +1,213 @@
+#[Packages]
+#Numpy==1.19.5 ,  higher/newer numpy versions doesn't work with casadi
+#datetime
+#pytz
+#requests
+#requests.auth
+#json
+#casadi
+#mip
+#math
+#re
+#configparser
+#matplotlib
+
+###### RUN SETTINGS ######
+[run]
+# JEVis-ID with Timeinformation as Time Stamp (in seconds), 
+# if empty local server time is used!
+TimeID = 
+# System: Zone 1 / System 1 /  all (see in SET UP, what the systems stand for)
+# Multiple Systems needed to be split with a comma. Empty-Space after comma needed!
+System = all
+# calibration: true / false
+calibration = true
+
+[modelidentification]
+# run: yes/no
+run = no
+# time-period for identification from ... to ...
+from = 20211113
+to = 20211213
+
+[control]
+# run: yes/no
+run = yes
+
+# Parameters: Horizon and Weighteningfactor
+# Der Horizon definiert die Zeitschritte die in der Zukunft prognostiziert werden sollen
+horizon Zone 1 = 48
+horizon Zone 2 = 48
+horizon Zone 3 = 48
+horizon Zone 4 = 48
+horizon Zone 5 = 48
+horizon Zone 6 = 48
+horizon Zone 7 = 48
+horizon Zone 8 = 48
+horizon Zone 9 = 48
+horizon Zone 10 = 48
+horizon Zone 11 = 48
+
+# Ein hoher Weightfactor sorgt für eine genauere Temperatureinhaltung, unter einem ggf. höheren Energiebedarf (bspw. 1-25)
+weightfactor Zone 1 = 3
+weightfactor Zone 2 = 3
+weightfactor Zone 3 = 3
+weightfactor Zone 4 = 3
+weightfactor Zone 5 = 3
+weightfactor Zone 6 = 3
+weightfactor Zone 7 = 3
+weightfactor Zone 8 = 3
+weightfactor Zone 9 = 3
+weightfactor Zone 10 = 3
+weightfactor Zone 11 = 3
+
+###### SET UP ######
+[JEVis-Service]
+jevisUser = HAW@SIOSTA
+jevisPW = HJ63ihsa
+webservice = https://ws101.jevis.de:443/JEWebService/v1
+
+[Models]
+# Model-file Name (probably also the path need to be in here!)
+File = Models.txt
+
+[Heater data sheet]
+Fullload = 1
+partial load = 0.4
+
+[Systems]
+# "; " trennen die Variablen
+System Count = 4
+Systemnames = System 1; System 2; System 3; System 4
+Zone Count = 11
+System 1 = Zone 1; Zone 2; Zone 3; Zone 4; Zone 5
+System 2 = Zone 6; Zone 7
+System 3 = Zone 8; Zone 9; Zone 10
+System 4 = Zone 11
+
+[IDs for Weekend Operation]
+# JEVis IDs for Weekend Operation recognition
+IDs Zone 1 = 
+IDs Zone 2 = 
+IDs Zone 3 = 
+IDs Zone 4 = 
+IDs Zone 5 = 
+IDs Zone 6 = 
+IDs Zone 7 = 
+IDs Zone 8 = 
+IDs Zone 9 = 
+IDs Zone 10 = 
+IDs Zone 11 = 
+
+[IDs of Temperature Measurements]
+IDs Zone 1 = 19847
+IDs Zone 2 = 18848
+#18849
+IDs Zone 3 = 18852
+IDs Zone 4 = 18844
+#18845
+IDs Zone 5 = 18846
+#18847
+IDs Zone 6 = 19857
+#19858
+IDs Zone 7 = 18854
+#18855
+IDs Zone 8 = 18838
+#18839
+IDs Zone 9 = 18834
+#18835
+IDs Zone 10 = 18836
+#18837
+IDs Zone 11 = 18840
+#18841
+
+[IDs of Heater Measurements]
+# "; " trennen die Variablen
+IDs Zone 1 = 18886; 18885
+IDs Zone 2 = 18887; 18888
+IDs Zone 3 = 18891; 18890; 18889
+IDs Zone 4 = 18894; 18893; 18892
+IDs Zone 5 = 18896; 18895
+IDs Zone 6 = 18875; 18876; 18874; 18873; 18872; 18871
+IDs Zone 7 = 18870; 18869; 18868; 18867; 18866; 18865; 18864; 18863
+IDs Zone 8 = 18921; 18920; 18919
+IDs Zone 9 =  18927; 18926; 18925; 18924
+IDs Zone 10 = 18931; 18930; 18929; 18928
+IDs Zone 11 = 18904; 18903; 18902; 18901
+
+[IDs of Disturbances]
+Outdoor Temperature = 9845
+
+# Doors connecting to the outside
+Outdoor-Door Zone 1 =
+Outdoor-Door Zone 2 =
+Outdoor-Door Zone 3 =
+Outdoor-Door Zone 4 =
+Outdoor-Door Zone 5 =
+Outdoor-Door Zone 6 = 22799
+Outdoor-Door Zone 7 = 22799
+Outdoor-Door Zone 8 = 22808
+Outdoor-Door Zone 9 = 22808; 22806
+Outdoor-Door Zone 10 = 22806
+Outdoor-Door Zone 11 = 22803
+
+[IDs of Energy Consumer Measurements]
+# Meaning the energy consumption (gas or electrical) of e.g. production units/plants or lighting
+# with the assumption of a correlated heat dissipation
+IDs Zone 1 = 7677; 7684; 7692; 7529; 7629; 7623
+IDs Zone 2 = 7677; 7684; 7692; 7529; 7629; 7623
+IDs Zone 3 = 7677; 7684; 7692; 7529; 7629; 7623
+IDs Zone 4 = 7677; 7684; 7692; 7529; 7629; 7623
+IDs Zone 5 = 7677; 7684; 7692; 7529; 7629; 7623
+IDs Zone 6 = 7627
+IDs Zone 7 = 7627
+IDs Zone 8 = 7528; 7631
+IDs Zone 9 = 7528; 7530; 7631
+IDs Zone 10 = 7528; 7631
+IDs Zone 11 = 7677; 7684; 7692; 7529; 7629; 7623
+
+[Fullload Signal Measurements]
+# leeres Feld steht für ausschließlich Volllast
+ID Fullload 1 = 19851
+ID Fullload 2 = 19861
+ID Fullload 3 = 18900
+ID Fullload 4 = 
+
+# From here on are the writing Signals defined!
+
+[IDs of Heater Variables]
+# "," trennen die Zeitstempel, "; " trennen die Variablen
+# bsp: Strahler 1 jetzt, Strahler 1 +5min, Strahler 1 +10min; Strahler 2 jetzt, Strahler 2 +5min, Strahler 2 +10min
+IDs Zone 1 = 23501, 24072, 24073; 23499, 24074, 24075
+IDs Zone 2 = 23502, 24076, 24077; 23505, 24078, 24079
+IDs Zone 3 = 23507, 24090, 24091; 23509, 24092, 24093; 23508, 24094, 24095
+IDs Zone 4 = 23500, 24082, 24083; 23503, 24086, 24087; 23506, 24088, 24089
+IDs Zone 5 = 23510, 24096, 24097; 23511, 24098, 24099
+IDs Zone 6 = 23515, 24001, 24014; 23521, 24002, 24015; 23522, 24004, 24016; 23520, 24003, 24018; 23517, 24005, 24019; 23516, 24006, 24020
+IDs Zone 7 = 23519, 24007, 24021; 23518, 24008, 24022; 23524, 24009, 24023; 23525, 24010, 24024; 23523, 24011, 24026; 23527, 24012, 24027; 23526, 23526, 23526; 23528, 24013, 24028
+IDs Zone 8 = 23531, 24041, 24056; 23534, 24043, 24057; 23539, 24042, 24058
+IDs Zone 9 = 23538, 24035, 24050; 23536, 24036, 24051; 23533, 24037, 24052; 23541, 24038, 24053
+IDs Zone 10 = 23540, 24031, 24046; 23535, 24032, 24047; 23529, 24033, 24048; 23530, 24034, 24049
+IDs Zone 11 = 23550, 24059, 24063; 23549, 24060, 24064; 23548, 24061, 24065; 23547, 24062, 24066
+
+[Fullload Variables]
+# leeres Feld steht für ausschließlich Volllast
+# "," trennen die Zeitstempel (jetzt, +5min, +10min)
+ID Fullload 1 = 23545, 24070, 24071
+ID Fullload 2 = 23543, 24029, 24030
+ID Fullload 3 = 23544, 24044, 24045
+ID Fullload 4 = 24067, 24068, 24069
+
+[Setpoints]
+#Room Temperature in Degree Celsius with timestemps in UTC
+Setpoint Zone 1 = 00:00:00, 14; 04:00:00, 19.5; 17:00:00, 14
+Setpoint Zone 2 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+Setpoint Zone 3 = 00:00:00, 14; 04:00:00, 21; 17:00:00, 14
+Setpoint Zone 4 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+Setpoint Zone 5 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+Setpoint Zone 6 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+Setpoint Zone 7 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+Setpoint Zone 8 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+Setpoint Zone 9 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+Setpoint Zone 10 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+Setpoint Zone 11 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
