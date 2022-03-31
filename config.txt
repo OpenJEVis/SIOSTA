@@ -63,8 +63,8 @@ weightfactor Zone 11 = 3
 
 ###### SET UP ######
 [JEVis-Service]
-jevisUser = HAW@SIOSTA
-jevisPW = HJ63ihsa
+jevisUser = 
+jevisPW = 
 webservice = https://ws101.jevis.de:443/JEWebService/v1
 
 [Models]
