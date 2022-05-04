@@ -7,9 +7,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
+from ConfigLoader import ConfigLoader
+
+
 
 def Controlvalidation(systemname,configurationfile,weightening_ratio,fromDv,toDv,fromT,toT,horizon=5,calibration='true'):
-    [ObjectIDs, horizon_config, weightfactor_config, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = t.configuration_loader(configurationfile)
+    [ObjectIDs, horizon_config, weightfactor_config, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
     #print(Setpoints)
     if systemname == 'all':
         # Plotting of all zones i
@@ -55,7 +58,7 @@ def Controlvalidation(systemname,configurationfile,weightening_ratio,fromDv,toDv
         a.plot_ControlCheck(zonenames[i], Temperature, Heater_sum, Heater_simulation_sum, Setpoint_trend)
 
 def ClosedLoopValidation(systemname,configurationfile,weightening_ratio,fromDv,toDv,fromT,toT,horizon=5,calibration='true'):
-    [ObjectIDs, horizon_config, weightfactor_config, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = t.configuration_loader(configurationfile)
+    [ObjectIDs, horizon_config, weightfactor_config, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
 
     if systemname == 'all':
         # Plotting of all zones i
@@ -113,7 +116,7 @@ def ClosedLoopValidation(systemname,configurationfile,weightening_ratio,fromDv,t
         a.plot_closeloop_simulation(zonenames[i], fromDv, toDv, fromT, toT)
 
 def MPC_Parameterstudies(systemname, configurationfile, fromDv, toDv, fromT, toT, weightening_ratio_array, horizon_for_weightvariation, horizon_array, weight_for_weihtvariation, calibration='true'):
-    [ObjectIDs, horizon_config, weightfactor_config, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = t.configuration_loader(configurationfile)
+    [ObjectIDs, horizon_config, weightfactor_config, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
     i = zonenames.index(systemname)
     for list in systems:
         for element in list:
@@ -193,7 +196,7 @@ def Parameter_csv(systemname, configurationfile, fromDv, toDv, fromT, toT, calib
     energie = n1 * n2
     setpoint_error_heating_time = np.zeros([np.size(setpoint_error,0), np.size(setpoint_error,1)])
 
-    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = t.configuration_loader(configurationfile)
+    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
     i = zonenames.index(systemname)
     for list in systems:
         for element in list:
@@ -305,7 +308,7 @@ def Comparison_of_multiple(systemname, configurationfile, fromDv, toDv, fromT, t
         print('ERROR: weight-array and horizon-array need to be the same size!')
 
     else:
-        [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = t.configuration_loader(configurationfile)
+        [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
         i = zonenames.index(systemname)
         for list in systems:
             for element in list:
@@ -342,7 +345,7 @@ def Comparison_of_multiple(systemname, configurationfile, fromDv, toDv, fromT, t
 
 
 def plot_Measurement(systemname, configurationfile, fromDv, toDv, fromT, toT, calibration='true'):
-    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = t.configuration_loader(configurationfile)
+    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
 
     if systemname == 'all':
         # Plotting of all zones i
@@ -426,7 +429,7 @@ def plot_Measurement(systemname, configurationfile, fromDv, toDv, fromT, toT, ca
         a.plot_measurement(systemname,fromDv,toDv, fromT, toT)
 
 def Gasvergleich(configurationfile, Testzeitraum, Vergleichszeitraum):
-    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = t.configuration_loader(configurationfile)
+    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
 
     gasID = '9833'
     LTGID = '7629'
@@ -516,8 +519,7 @@ def Gasvergleich(configurationfile, Testzeitraum, Vergleichszeitraum):
     ax.bar_label(b)
 
 def Stellgrößenvergleich(system, configurationfile, Testzeitraum, Vergleichszeitraum):
-    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = t.configuration_loader(configurationfile)
-
+    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
     Testzeitraum = Testzeitraum.split('-')
     Vergleichszeitraum = Vergleichszeitraum.split('-')
 
@@ -625,7 +627,7 @@ def Stellgrößenvergleich(system, configurationfile, Testzeitraum, Vergleichsze
 
 def moving_threshold(systemname, configurationfile, fromDv, toDv, fromT, toT):
     [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice,
-     modelfile, heaterdata] = t.configuration_loader(configurationfile)
+     modelfile, heaterdata] = ConfigLoader.ConfigLoader(configurationfile)
 
     if systemname == 'all':
         # Plotting of all zones i
@@ -719,7 +721,7 @@ def moving_threshold(systemname, configurationfile, fromDv, toDv, fromT, toT):
 
 def compare_measurements(systemname, configurationfile, Testzeitraum, Vergleichszeitraum):
     [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice,
-     modelfile, heaterdata] = t.configuration_loader(configurationfile)
+     modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
 
     Testzeitraum = Testzeitraum.split('-')
     Vergleichszeitraum = Vergleichszeitraum.split('-')

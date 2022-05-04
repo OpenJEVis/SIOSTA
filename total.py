@@ -1,3 +1,4 @@
+
 import ParamFUNKTIONS as p
 import RegFUNKTIONS as r
 import AlgorithmValidation as a
@@ -7,6 +8,10 @@ import datetime
 import matplotlib.pyplot as plt
 
 #Loader for the Configurationfile , including Object IDs
+from ConfigLoader import ConfigLoader
+from JEVis import JEVis
+
+
 def configuration_loader(configurationfile):
     config = configparser.ConfigParser()
     config.sections()
@@ -161,38 +166,40 @@ def Regulation(filename, TimeID, WeekendID, heaterdata, zonename,weightening_rat
     # loading model data of a given zone into a python-list from the modelfile
     ModellParam = r.load_model(filename, zonename)
     # read the current measured Data needed for the Control-Algortihm (Disturbances, Temperature, Heater)
-    prepVals=r.Control_read(WeekendID,ID_heaters,IDs_disturbances, ID_energy,ID_temperature,username,password,webservice)
+    jevisValues=JEVis.controlRead(WeekendID,ID_heaters,IDs_disturbances, ID_energy,ID_temperature,username,password,webservice)
     # Read the current time and convert to a date- and a time-string
     [now_day, now_time] = r.Time_reader(TimeID,username,password,webservice)
     # create a Array of Setpoints for the given Control-Horizon
-    Setpoint = r.Set_Setpoint(Setpoints[0], Setpoints[1], prepVals[4], now_day, now_time, horizon)
+    Setpoint = r.Set_Setpoint(Setpoints[0], Setpoints[1], jevisValues.weekend_operation, now_day, now_time, horizon)
+    print("Setpoint")
+    print(Setpoint)
     # Control-Algorithm, calculating the optimal Controlvalues with the given Weightening for the next 3 Timesteps
-    Controlvalues = r.Control(heaterdata, prepVals[1],Heaters_number,prepVals[2],prepVals[3], Setpoint, ModellParam, fullload_hall,
+    Controlvalues = r.Control(heaterdata, jevisValues.temperature_vals,Heaters_number,jevisValues.dist_vals,jevisValues.energie_vals, Setpoint, ModellParam, fullload_hall,
                               weightening_ratio,horizon)
     # Split the Controlvalues into Heater (on/off) and fullload (on/off) signals
-    [fullload, heaters] = r.Fullload_sep(heaterdata, Controlvalues, prepVals[0], Heaters_number, fullload_hall)
+    [fullload, heaters] = r.Fullload_sep(heaterdata, Controlvalues, jevisValues.heaters_vals, Heaters_number, fullload_hall)
     return fullload, heaters
 def Regulation_calibration(filename, TimeID, WeekendID, heaterdata, zonename,weightening_ratio,IDs_disturbances, ID_temperature,ID_heaters,ID_fullload,ID_energy,Setpoints,Heaters_number,fullload_hall,horizon,username,password,webservice):
     # loading model data of a given zone into a python-list from the modelfile
     ModellParam = r.load_model_with_calibration(filename, zonename)
     # read the current measured Data needed for the Control-Algortihm (Disturbances, Temperature, Heater)
-    prepVals = r.Control_read(WeekendID,ID_heaters,IDs_disturbances, ID_energy, ID_temperature, username, password, webservice)
+    jevisValues = JEVis.controlRead(WeekendID,ID_heaters,IDs_disturbances, ID_energy, ID_temperature, username, password, webservice)
     # Read the current time and convert to a date- and a time-string
     [now_day, now_time] = r.Time_reader(TimeID,username,password,webservice)
     # create a Array of Setpoints for the given Control-Horizon
-    Setpoint = r.Set_Setpoint(Setpoints[0], Setpoints[1], prepVals[4], now_day, now_time, horizon)
+    Setpoint = r.Set_Setpoint(Setpoints[0], Setpoints[1], jevisValues.weekend_operation, now_day, now_time, horizon)
     # Control-Algorithm, calculating the optimal Controlvalues with the given Weightening for the next 3 Timesteps
-    Controlvalues = r.Control_with_calibration(heaterdata, prepVals[1],Heaters_number,prepVals[2],prepVals[3], Setpoint, ModellParam, fullload_hall,
+    Controlvalues = r.Control_with_calibration(heaterdata, jevisValues.temperature_vals,Heaters_number,jevisValues.dist_vals,jevisValues.energie_vals, Setpoint, ModellParam, fullload_hall,
                               weightening_ratio,horizon)
     # Split the Controlvalues (0 / 1 / 2) into Heater ( on(1) / off(0) ) and fullload ( on(1) / off(0) ) signals
-    [fullload, heaters] = r.Fullload_sep(heaterdata, Controlvalues, prepVals[0], Heaters_number, fullload_hall)
+    [fullload, heaters] = r.Fullload_sep(heaterdata, Controlvalues, jevisValues.heaters_vals, Heaters_number, fullload_hall)
     return fullload, heaters
 
 ########## CALL - FUNCTIONS ##########
 # Modelidentifcation: Call Functions for the model and parameter identifier
     # Loading data from JEVis and prepare Data (e.g. generating 5 min intervals)
     # Creating Modelstructure and calculating parameters
-    # Write Models into models.txt / JEVis
+    # Write Models into Models.txt / JEVis
 def modelidentification(zonename, configurationfile, fromD, toD, calibration='true', set_equalHeaterParameter='false'):
     # zonename can be: Zone 1, System 1 or all
     # load set-up information of all zones
@@ -370,8 +377,7 @@ def validation_plot(zonename, configurationfile, fromDv, toDv,calibration='true'
     # Writing on JEVis
 
 def Controlfunction(systemname,configurationfile,TimeID,calibration='true'):
-    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = configuration_loader(
-        configurationfile)
+    [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = configuration_loader(configurationfile)
     # weightfactor: Ratio of the Cost of comfort (setpoint fulfillment) versus Cost of energy consumption (Sum of the heater/input/control signals)
     if systemname == 'all':
         # Control of all zones i
@@ -432,11 +438,10 @@ def Controlfunction(systemname,configurationfile,TimeID,calibration='true'):
                 else:
                     print('ERROR: calibration-variable can only be true or false!')
                 # write controlvalues into JEVis
-                r.Control_write(ObjectIDs[5][index[j][n]], ObjectIDs[6][j], fullload[n], heaters[n], jevisUser, jevisPW,webservice)
+                JEVis.controlWrite(ObjectIDs[5][index[j][n]], ObjectIDs[6][j], fullload[n], heaters[n], jevisUser, jevisPW,webservice)
     elif systemname in systemnames:
         # Systemwise control of a area, where one fullload switch controls multiple zones at once!
-        [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = configuration_loader(
-            configurationfile)
+        [ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = configuration_loader(configurationfile)
         # Control of all zones i of one system (hall)
         # create index array for the zone according their position in the configuration-arrays
         index = systems

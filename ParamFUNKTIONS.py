@@ -200,7 +200,7 @@ def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturban
         # import from JEVis
         [heater[i],fromD_utc, fromT_utc, toD_utc, toT_utc]  = JEVISDataprep(objID_heater[i], fromD, toD, fromT, toT, username, password, webservice)
         if len(heater[i][0]) == 0:
-            heater[i][0] = r.JEVisDataprep_Control(objID_heater[i], username, password, webservice)
+            heater[i][0] = r.read(objID_heater[i], username, password, webservice)
         # Convert to a 5 minute-basis
         heaterm[i] = Minutebasis(heater[i],fromD_utc,toD_utc,fromT_utc,toT_utc)
     # Importing Temperature States
