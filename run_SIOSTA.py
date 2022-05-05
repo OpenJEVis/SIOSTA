@@ -42,8 +42,10 @@ if config['control']['run'] == 'yes':
     #horizonperiod = int(config['control']['horizon'])
     #weightfactor = int(config['control']['weightfactor'])
     if len(system) > 1:
+        print("test")
         for i in range(len(system)):
             Controlfunction(system[i], configurationfile, TimeID,
                             calibration=calibrationvalue)
     elif len(system) == 1:
+        print("test2")
         Controlfunction(system[0], configurationfile, TimeID, calibration=calibrationvalue)
