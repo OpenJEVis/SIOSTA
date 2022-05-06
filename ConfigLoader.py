@@ -1,5 +1,6 @@
 import configparser
 import re
+from typing import Any
 
 
 class ConfigLoader:
@@ -31,6 +32,8 @@ class ConfigLoader:
         for i in configData.zonenames:
             configData.objectIds.weekend_operation.append(config['IDs for Weekend Operation']["IDs "+i])
             configData.objectIds.Temperatures.append(config['IDs of Temperature Measurements']["IDs "+i])
+            print( "configData.objectIds.Temperatures")
+            print(configData.objectIds.Temperatures)
             configData.objectIds.Heaters_measurement.append(config['IDs of Heater Measurements']["IDs "+i].replace(' ', '').split(';'))
             configData.horizon.append(int(config['control']['horizon ' + i]))
             configData.weightfactor.append(int(config['control']['weightfactor ' + i]))
@@ -49,9 +52,18 @@ class ConfigLoader:
                    else:
                        Stepoint2.append(k.replace(" ",""))
                 Stepoint.append(Stepoint2)
+                StepointID = []
+                for j in (config["Setpoints3"]["Setpoint " + i]).split(";"):
+                    Stepoint2 = []
+                    for k in j.split(","):
+                            Stepoint2.append(k.replace(" ", ""))
+                    StepointID.append(Stepoint2)
+
 
             #print(Stepoint)
             configData.objectIds.setpoints.append(Stepoint)
+            configData.objectIds.setpoints_new.append(StepointID)
+            print( configData.objectIds.setpoints_new)
             #print(configData.objectIds.setpoints)
 
             #print(configData.objectIds.energetic_measurements)
@@ -97,8 +109,8 @@ class ConfigLoader:
             for j in config['IDs of Heater Variables'][name].split(";"):
                 Heaters_variable_2 = []
                 for k in j.split(","):
-                    print("Heaters_variables ")
-                    print(k)
+                    #print("Heaters_variables ")
+                   # print(k)
                     Heaters_variable_2.append(k.replace(" ",""))
                 Heaters_variable.append(Heaters_variable_2)
 
@@ -200,10 +212,17 @@ class Config:
         self.weightfactor = []
         self.horizon = []
         self.setpoint = []
-        self.objectIds_2 = []
+        #self.objectIds_2 = []
+
+
+    def __str__(self):
+        return "jevisUser: " +self.jevisUser +"jevisPW: "+self.jevisPW +"webservice: "+str(self.webservice)+"modelfile: "+self.modelfile +"heaterdata: "+str(self.heaterdata) +"systems: "+str(self.systems)+"systemnames: "+str(self.systemnames)+"zonenames: "+str(self.zonenames) + "objectIds: "+str(self.objectIds) + "weightfactor: "+str(self.weightfactor) +"horizon: "+ str(self.horizon)+ "setpoint" +str(self.setpoint) +"objectIds_2: "+str(self.objectIds_2)
 
 
 class ObjectIDs:
+    def __setattr__(self, name: str, value: Any) -> None:
+        super().__setattr__(name, value)
+
     def __init__(self):
         self.Heaters_measurement = []
         self.Temperatures = []
@@ -214,6 +233,9 @@ class ObjectIDs:
         self.Fullload_variables = []
         self.weekend_operation = []
         self.setpoints = []
+        self.setpoints_new =[]
 
     def __str__(self):
-        return "Heaters_measurement: " + self.Heaters_measurement +"Temperatures: " +self.Temperatures +"Disturbances: " +self.Disturbances +"Fullload_measurements" +self.Fullload_measurements
+        return "Heaters_measurement: " + str(self.Disturbances) +"Temperatures: " +str(self.Temperatures) +"Disturbances: " +str(self.Disturbances) +"Fullload_measurements: " +str(self.Fullload_measurements) + "energetic_measurements: " + str(self.energetic_measurements) +"Heaters_variables: " + str(self.Heaters_variables)+\
+               "Fullload_variables: "+ str(self.Fullload_variables) + "weekend_operation: "+ str(self.weekend_operation) +"setpoints: "+str(self.setpoints) +"setpoints_new: "+str(self.setpoints_new)
+

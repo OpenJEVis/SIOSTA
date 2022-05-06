@@ -164,39 +164,39 @@ def Validation_with_calibration(WeekendID,heaterdata, zonename, ID_heater,heater
         #preparing data to write in JEVis
         #write data in JEVis (seperate object IDs for write)
 
-def Regulation(filename, TimeID, WeekendID, heaterdata, zonename,weightening_ratio,IDs_disturbances, ID_temperature,ID_heaters,ID_fullload,ID_energy,Setpoints,Heaters_number,fullload_hall,horizon,username,password,webservice):
+def Regulation(filename, TimeID, WeekendID, heaterdata, zonename,weightening_ratio,IDs_disturbances, ID_temperature,ID_heaters,ID_fullload,ID_energy,Setpoints,Heaters_number,fullload_hall,horizon,username,password,webservice,Setpoint_new):
     # loading model data of a given zone into a python-list from the modelfile
     ModellParam = r.load_model(filename, zonename)
     # read the current measured Data needed for the Control-Algortihm (Disturbances, Temperature, Heater)
-    jevisValues=JEVis.controlRead(WeekendID,ID_heaters,IDs_disturbances, ID_energy,ID_temperature,username,password,webservice)
+    jevisValues=JEVis.read(WeekendID, ID_heaters, IDs_disturbances, ID_energy, ID_temperature, username, password, webservice)
     # Read the current time and convert to a date- and a time-string
     [now_day, now_time] = r.Time_reader(TimeID,username,password,webservice)
     # create a Array of Setpoints for the given Control-Horizon
-    Setpoint = r.Set_Setpoint(Setpoints[0], Setpoints[1], jevisValues.weekend_operation, now_day, now_time, horizon)
+    Setpoint = r.Set_Setpoint(Setpoints[0], Setpoints[1], jevisValues.weekendOperation, now_day, now_time, horizon)
     print("Setpoint")
     print(Setpoint)
     # Control-Algorithm, calculating the optimal Controlvalues with the given Weightening for the next 3 Timesteps
-    Controlvalues = r.Control(heaterdata, jevisValues.temperature_vals,Heaters_number,jevisValues.dist_vals,jevisValues.energie_vals, Setpoint, ModellParam, fullload_hall,
-                              weightening_ratio,horizon)
+    Controlvalues = r.Control(heaterdata, jevisValues.temperatureValues, Heaters_number, jevisValues.disturbancesValues, jevisValues.energyValues, Setpoint, ModellParam, fullload_hall,
+                              weightening_ratio, horizon)
     # Split the Controlvalues into Heater (on/off) and fullload (on/off) signals
-    [fullload, heaters] = r.Fullload_sep(heaterdata, Controlvalues, jevisValues.heaters_vals, Heaters_number, fullload_hall)
+    [fullload, heaters] = r.Fullload_sep(heaterdata, Controlvalues, jevisValues.heaterValues, Heaters_number, fullload_hall)
     return fullload, heaters
-def Regulation_calibration(filename, TimeID, WeekendID, heaterdata, zonename,weightening_ratio,IDs_disturbances, ID_temperature,ID_heaters,ID_fullload,ID_energy,Setpoints,Heaters_number,fullload_hall,horizon,username,password,webservice):
+def Regulation_calibration(filename, TimeID, WeekendID, heaterdata, zonename,weightening_ratio,IDs_disturbances, ID_temperature,ID_heaters,ID_fullload,ID_energy,Setpoints,Heaters_number,fullload_hall,horizon,username,password,webservice, Setpoint_new):
     print(Setpoints)
     # loading model data of a given zone into a python-list from the modelfile
     ModellParam = r.load_model_with_calibration(filename, zonename)
     # read the current measured Data needed for the Control-Algortihm (Disturbances, Temperature, Heater)
-    jevisValues = JEVis.controlRead(WeekendID,ID_heaters,IDs_disturbances, ID_energy, ID_temperature, username, password, webservice)
+    jevisValues = JEVis.read(WeekendID,ID_heaters,IDs_disturbances, ID_energy, ID_temperature, username, password, webservice)
     # Read the current time and convert to a date- and a time-string
     [now_day, now_time] = r.Time_reader(TimeID,username,password,webservice)
     # create a Array of Setpoints for the given Control-Horizon
     print(Setpoints)
-    Setpoint = r.Set_Setpoint(Setpoints[0], Setpoints[1], jevisValues.weekend_operation, now_day, now_time, horizon)
+    Setpoint = r.Set_Setpoint(Setpoints[0], Setpoints[1], jevisValues.weekendOperation, now_day, now_time, horizon)
     # Control-Algorithm, calculating the optimal Controlvalues with the given Weightening for the next 3 Timesteps
-    Controlvalues = r.Control_with_calibration(heaterdata, jevisValues.temperature_vals,Heaters_number,jevisValues.dist_vals,jevisValues.energie_vals, Setpoint, ModellParam, fullload_hall,
-                              weightening_ratio,horizon)
+    Controlvalues = r.Control_with_calibration(heaterdata, jevisValues.temperatureValues, Heaters_number, jevisValues.disturbancesValues, jevisValues.energyValues, Setpoint, ModellParam, fullload_hall,
+                                               weightening_ratio, horizon)
     # Split the Controlvalues (0 / 1 / 2) into Heater ( on(1) / off(0) ) and fullload ( on(1) / off(0) ) signals
-    [fullload, heaters] = r.Fullload_sep(heaterdata, Controlvalues, jevisValues.heaters_vals, Heaters_number, fullload_hall)
+    [fullload, heaters] = r.Fullload_sep(heaterdata, Controlvalues, jevisValues.heaterValues, Heaters_number, fullload_hall)
     return fullload, heaters
 
 ########## CALL - FUNCTIONS ##########
@@ -222,15 +222,15 @@ def modelidentification(zonename, configurationfile, fromD, toD, calibration='tr
                 # Iteration through the zones n of hall/system j
                 if calibration=='true':
                     # Starting the identification-Function given above
-                    identification_with_calibration(configData.modelfile,configData.objectIds_2[7][i], configData.heaterdata, configData.zonenames[i], configData.objectIds_2[0][i], np.size(configData.objectIds_2[0][i]),
-                                                configData.objectIds_2[2][i],
-                                                configData.objectIds_2[1][i], configData.objectIds_2[3][j], configData.objectIds_2[4][i], fromD, toD, '00', '00', configData.jevisUser,
+                    identification_with_calibration(configData.modelfile,configData.objectIds.weekend_operation[i], configData.heaterdata, configData.zonenames[i], configData.objectIds.Heaters_measurement[i], np.size(configData.objectIds.Heaters_measurement[i]),
+                                                configData.objectIds.Disturbances[i],
+                                                configData.objectIds.Temperatures[i], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[i], fromD, toD, '00', '00', configData.jevisUser,
                                                 configData.jevisPW, configData.webservice, set_equalHeaterParameter)
                 elif calibration=='false':
                     # Starting the identification-Function given above
-                    identification(configData.modelfile,configData.objectIds_2[7][i], configData.heaterdata, configData.zonenames[i], configData.objectIds_2[0][i], np.size(configData.objectIds_2[0][i]),
-                                                    configData.objectIds_2[2][i],
-                                                    configData.objectIds_2[1][i], configData.objectIds_2[3][j], configData.objectIds_2[4][i], fromD, toD, '00', '00', configData.jevisUser,
+                    identification(configData.modelfile,configData.objectIds.weekend_operation[i], configData.heaterdata, configData.zonenames[i], configData.objectIds.Heaters_measurement[i], np.size(configData.objectIds.Heaters_measurement[i]),
+                                                    configData.objectIds.Disturbances[i],
+                                                    configData.objectIds.Temperatures[i], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[i], fromD, toD, '00', '00', configData.jevisUser,
                                                     configData.jevisPW, configData.webservice, set_equalHeaterParameter)
                 else:
                     print('ERROR: calibration-variable can only be true or false!')
@@ -249,17 +249,17 @@ def modelidentification(zonename, configurationfile, fromD, toD, calibration='tr
             # Iteration through the zones n of hall/system j
             if calibration == 'true':
                 # Starting the identification-Function given above
-                identification_with_calibration(configData.modelfile,configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]], configData.objectIds_2[0][index[j][n]],
-                                                np.size(configData.objectIds_2[0][index[j][n]]),
-                                                configData.objectIds_2[2][index[j][n]],
-                                                configData.objectIds_2[1][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]], fromD, toD, '00',
+                identification_with_calibration(configData.modelfile,configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]],
+                                                np.size(configData.objectIds.Heaters_measurement[index[j][n]]),
+                                                configData.objectIds.Disturbances[index[j][n]],
+                                                configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]], fromD, toD, '00',
                                                 '00', configData.jevisUser,
                                                 configData.jevisPW, configData.webservice,set_equalHeaterParameter)
             elif calibration == 'false':
                 # Starting the identification-Function given above
-                identification(configData.modelfile, configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]], configData.objectIds_2[0][index[j][n]], np.size(configData.objectIds[0][index[j][n]]),
-                               configData.objectIds_2[2][index[j][n]],
-                               configData.objectIds_2[1][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]], fromD, toD, '00', '00', configData.jevisUser,
+                identification(configData.modelfile, configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]], np.size(configData.objectIds.Heaters_measurement[index[j][n]]),
+                               configData.objectIds.Disturbances[index[j][n]],
+                               configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]], fromD, toD, '00', '00', configData.jevisUser,
                                configData.jevisPW, configData.webservice, set_equalHeaterParameter)
             else:
                 print('ERROR: calibration-variable can only be true or false!')
@@ -278,13 +278,13 @@ def modelidentification(zonename, configurationfile, fromD, toD, calibration='tr
         # Identification of the given Zone
         if calibration=='true':
             # Starting the identification-Function given above
-            identification_with_calibration(configData.modelfile,configData.objectIds_2[7][i], configData.heaterdata, configData.zonenames[i], configData.objectIds_2[0][i], np.size(configData.objectIds_2[0][i]),
-                                        configData.objectIds_2[2][i], configData.objectIds_2[1][i], configData.objectIds_2[3][j], configData.objectIds_2[4][i], fromD, toD, '00', '00',
+            identification_with_calibration(configData.modelfile,configData.objectIds.weekend_operation[i], configData.heaterdata, configData.zonenames[i], configData.objectIds.Heaters_measurement[i], np.size(configData.objectIds.Heaters_measurement[i]),
+                                        configData.objectIds.Disturbances[i], configData.objectIds.Temperatures[i], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[i], fromD, toD, '00', '00',
                                         configData.jevisUser, configData.jevisPW, configData.webservice,set_equalHeaterParameter)
         elif calibration=='false':
             # Starting the identification-Function given above
-            identification(configData.modelfile,configData.objectIds_2[7][i], configData.heaterdata, configData.zonenames[i], configData.objectIds_2[0][i], np.size(configData.objectIds_2[0][i]),
-                                            configData.objectIds_2[2][i], configData.objectIds_2[1][i], configData.objectIds_2[3][j], configData.objectIds_2[4][i], fromD, toD, '00', '00',
+            identification(configData.modelfile,configData.objectIds.weekend_operation[i], configData.heaterdata, configData.zonenames[i], configData.objectIds.Heaters_measurement[i], np.size(configData.objectIds.Heaters_measurement[i]),
+                                            configData.objectIds.Disturbances[i], configData.objectIds.Temperatures[i], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[i], fromD, toD, '00', '00',
                                             configData.jevisUser, configData.jevisPW, configData.webservice, set_equalHeaterParameter)
         else:
             print('ERROR: calibration-variable can only be true or false!')
@@ -352,7 +352,7 @@ def validation_plot(zonename, configurationfile, fromDv, toDv,calibration='true'
                     # load model-data into a python-list from the modelfile of the given zone
                     Params = r.load_model(configData.modelfile, configData.zonenames[i])
                     # Starting the Plotting-Function given above
-                    Validation(configData.objectIds_2[7][i],configData.heaterdata, configData.zonenames[i], configData.ObjectIDs[0][i], np.size(configData.ObjectIDs[0][i]), configData.ObjectIDs[2][i],
+                    Validation(configData.objectIds.weekend_operation[i],configData.heaterdata, configData.zonenames[i], configData.ObjectIDs[0][i], np.size(configData.ObjectIDs[0][i]), configData.ObjectIDs[2][i],
                                configData.objectIds_2[1][i],
                                configData.objectIds_2[3][j], configData.objectIds[4][i], fromDv, toDv, '00',
                                '00', 0, Params, configData.jevisUser, configData.jevisPW, configData.webservice)
@@ -427,6 +427,7 @@ def Controlfunction(systemname,configurationfile,TimeID,calibration='true'):
     print("control")
     #[ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
     configData = ConfigLoader.configuration_loader(configurationfile)
+    setpoints=JEVis.readSetpoints(configData.objectIds.setpoints_new,configData.jevisUser,configData.jevisPW,configData.webservice)
     #printconfig(configurationfile)
     # weightfactor: Ratio of the Cost of comfort (setpoint fulfillment) versus Cost of energy consumption (Sum of the heater/input/control signals)
     if systemname == 'all':
@@ -449,21 +450,21 @@ def Controlfunction(systemname,configurationfile,TimeID,calibration='true'):
                 if calibration=='true':
                     # Starting Regulation-Function given above
                     #filename, TimeID, WeekendID, heaterdata, zonename,weightening_ratio,IDs_disturbances, ID_temperature,ID_heaters,ID_fullload,ID_energy,Setpoints,Heaters_number,fullload_hall,horizon,username,password,webservice
-                    [fullload[n], heaters[n]] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds_2[2][index[j][n]], configData.objectIds_2[1][index[j][n]], configData.objectIds_2[0][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]], configData.objectIds.setpoints[index[j][n]], len(configData.objectIds_2[5][index[j][n]]),[0,0,0],configData.horizon[index[j][n]],configData.jevisUser, configData.jevisPW,configData.webservice)
+                    [fullload[n], heaters[n]] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds.Disturbances[index[j][n]], configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]], configData.objectIds.setpoints[index[j][n]], len(configData.objectIds.Heaters_measurement[index[j][n]]),[0,0,0],configData.horizon[index[j][n]],configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
                 elif calibration=='false':
                     # Starting Regulation-Function given above
-                    [fullload[n], heaters[n]] = Regulation(configData.modelfile, TimeID, configData.objectIds_2[7][index[j][n]],configData.heaterdata, configData.zonenames[index[j][n]],
-                                                                       configData.weightfactor[index[j][n]], configData.objectIds_2[2][index[j][n]],
-                                                                       configData.objectIds_2[1][index[j][n]],
-                                                                       configData.objectIds_2[0][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]],
-                                                                       configData.objectIds.setpoints[index[j][n]],
-                                                                       len(configData.objectIds_2[5][index[j][n]]), [0, 0, 0],configData.horizon[index[j][n]],
-                                                                       configData.jevisUser, configData.jevisPW, configData.webservice)
+                    [fullload[n], heaters[n]] = Regulation(configData.modelfile, TimeID, configData.objectIds.weekend_operation[index[j][n]],configData.heaterdata, configData.zonenames[index[j][n]],
+                                                                       configData.weightfactor[index[j][n]], configData.objectIds.Disturbances[index[j][n]],
+                                                                       configData.objectIds.Temperatures[index[j][n]],
+                                                                       configData.objectIds.Heaters_measurement[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]],
+                                                                       setpoints[index[j][n]],
+                                                                       len(configData.objectIds.Heaters_measurement[index[j][n]]), [0, 0, 0],configData.horizon[index[j][n]],
+                                                                       configData.jevisUser, configData.jevisPW, configData.webservice,configData.objectIds.setpoints_new)
                 else:
                     print('ERROR: calibration-variable can only be true or false!')
 
             # fullload set parameter over the next 3 timesteps: if in a Hall is fullload set by one Zone, all other Zones of that hall need to be in fullload too!
-            fullload_hall = np.zeros(int(len(fullload[0]) / len(configData.objectIds_2[5][index[j][0]])))
+            fullload_hall = np.zeros(int(len(fullload[0]) / len(configData.objectIds.Heaters_variables[index[j][0]])))
             # Iteration through all systems and check if a Zone in the system needs Fullload
             # if so, all Control-Signals of the Zones of that system need to be recalculated, only allowing fullload or off signals (2 / 0)
             # Iteration through the systems
@@ -471,24 +472,24 @@ def Controlfunction(systemname,configurationfile,TimeID,calibration='true'):
                 # Iteration through the 3 timesteps, that will be written to JEVis
                 for z in range(len(fullload_hall)):
                     # Iteration through the zones of a system
-                    for i in range(z * len(configData.objectIds_2[5][index[j][n]]), (z+1) * len(configData.objectIds_2[5][index[j][n]])):
+                    for i in range(z * len(configData.objectIds.Heaters_variables[index[j][n]]), (z+1) * len(configData.objectIds.Heaters_variables[index[j][n]])):
                         # check if Zone of the system needs fullload
                         if fullload[n][i] == 1:
                             fullload_hall[z] = 1
                 if calibration=='true':
                     # Starting Regulation-Function given above, with the given fullload-demand
-                    [fullload[n], heaters[n]] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds_2[2][index[j][n]],
-                                                         configData.objectIds_2[1][index[j][n]], configData.objectIds_2[0][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]],
-                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds_2[0][index[j][n]]), fullload_hall,configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice)
+                    [fullload[n], heaters[n]] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds.Disturbances[index[j][n]],
+                                                         configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]],
+                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds.Heaters_measurement[index[j][n]]), fullload_hall,configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
                 elif calibration=='false':
                     # Starting Regulation-Function given above, with the given fullload-demand
-                    [fullload[n], heaters[n]] = Regulation(configData.modelfile, TimeID, configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds_2[2][index[j][n]],
-                                                         configData.objectIds_2[1][index[j][n]], configData.objectIds_2[0][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]],
-                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds_2[0][index[j][n]]), fullload_hall,configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice)
+                    [fullload[n], heaters[n]] = Regulation(configData.modelfile, TimeID, configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds.Disturbances[index[j][n]],
+                                                         configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]],
+                                                         setpoints[index[j][n]], len(configData.objectIds.Heaters_measurement[index[j][n]]), fullload_hall,configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
                 else:
                     print('ERROR: calibration-variable can only be true or false!')
                 # write controlvalues into JEVis
-                JEVis.controlWrite(configData.objectIds_2[5][index[j][n]], configData.objectIds_2[6][j], fullload[n], heaters[n], configData.jevisUser, configData.jevisPW,configData.webservice)
+                JEVis.controlWrite(configData.objectIds.Heaters_variables[index[j][n]], configData.objectIds.Fullload_variables[j], fullload[n], heaters[n], configData.jevisUser, configData.jevisPW,configData.webservice)
     elif systemname in configData.systemnames:
         # Systemwise control of a area, where one fullload switch controls multiple zones at once!
         #[ObjectIDs, horizon, weightfactor, systems, systemnames, zonenames, Setpoints, jevisUser, jevisPW, webservice, modelfile, heaterdata] = ConfigLoader.configuration_loader(configurationfile)
@@ -512,43 +513,43 @@ def Controlfunction(systemname,configurationfile,TimeID,calibration='true'):
             print(configData.zonenames[index[j][n]])
             if calibration=='true':
                 # Starting Regulation-Function given above
-                [fullload[n], heaters[n]] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.ObjectIDs[2][index[j][n]],
-                                                         configData.objectIds_2[1][index[j][n]], configData.objectIds_2[0][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]],
-                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds_2[0][index[j][n]]), [0, 0, 0],configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice)
+                [fullload[n], heaters[n]] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds.Disturbances[index[j][n]],
+                                                         configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]],
+                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds.Heaters_measurement[index[j][n]]), [0, 0, 0],configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
             elif calibration=='false':
                 # Starting Regulation-Function given above
-                [fullload[n], heaters[n]] = Regulation(configData.modelfile, TimeID, configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds_2[2][index[j][n]],
-                                                         configData.objectIds_2[1][index[j][n]], configData.objectIds_2[0][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]],
-                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds_2[0][index[j][n]]), [0, 0, 0],configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice)
+                [fullload[n], heaters[n]] = Regulation(configData.modelfile, TimeID, configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds.Disturbances[index[j][n]],
+                                                         configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]],
+                                                         setpoints[index[j][n]], len(configData.objectIds_2[0][index[j][n]]), [0, 0, 0],configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
             else:
                 print('ERROR: calibration-variable can only be true or false!')
         # fullload set parameter over the next 3 timesteps: if in a Hall is fullload set by one Zone, all other Zones of that hall need to be in fullload too!
         # Iteration through the system and check if a Zone in the system needs Fullload
         # if so, all Control-Signals of the Zones of that system need to be recalculated, only allowing fullload or off signals (2 / 0)
-        fullload_hall = np.zeros(int(len(fullload[0]) / len(configData.objectIds_2[5][index[j][0]])))
+        fullload_hall = np.zeros(int(len(fullload[0]) / len(configData.objectIds.Heaters_variables[index[j][0]])))
         for n in range(np.size(configData.systems[j])):
             # Iteration through the 3 timesteps, that will be written to JEVis
             for z in range(np.size(fullload_hall)):
                 # Iteration through the zones of a system
-                for i in range(z * len(configData.objectIds_2[5][index[j][n]]), (z+1) * len(configData.objectIds_2[5][index[j][n]])):
+                for i in range(z * len(configData.objectIds.Heaters_variables[index[j][n]]), (z+1) * len(configData.objectIds.Heaters_variables[index[j][n]])):
                     # check if Zone of the system needs fullload
                     if fullload[n][i] == 1:
                         fullload_hall[z] = 1
             print(configData.zonenames[index[j][n]])
             if calibration=='true':
                 # Starting Regulation-Function given above, with the given fullload-demand
-                [fullload[n], heaters[n]] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds_2[2][index[j][n]],
-                                                         configData.objectIds_2[1][index[j][n]], configData.objectIds_2[0][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]],
-                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds_2[0][index[j][n]]), fullload_hall,configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice)
+                [fullload[n], heaters[n]] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds.Disturbances[index[j][n]],
+                                                         configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]],
+                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds.Heaters_measurement[index[j][n]]), fullload_hall,configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
             elif calibration=='false':
                 # Starting Regulation-Function given above, with the given fullload-demand
-                [fullload[n], heaters[n]] = Regulation(configData.modelfile, TimeID, configData.objectIds_2[7][index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.ObjectIDs[2][index[j][n]],
-                                                         configData.objectIds_2[1][index[j][n]], configData.objectIds_2[0][index[j][n]], configData.objectIds_2[3][j], configData.objectIds_2[4][index[j][n]],
-                                                         configData.objectIds.setpoints[index[j][n]], len(configData.objectIds_2[0][index[j][n]]), fullload_hall,configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice)
+                [fullload[n], heaters[n]] = Regulation(configData.modelfile, TimeID, configData.objectIds.weekend_operation[index[j][n]], configData.heaterdata, configData.zonenames[index[j][n]],configData.weightfactor[index[j][n]], configData.objectIds.Disturbances[index[j][n]],
+                                                         configData.objectIds.Temperatures[index[j][n]], configData.objectIds.Heaters_measurement[index[j][n]], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[index[j][n]],
+                                                         setpoints[index[j][n]], len(configData.objectIds.Heaters_measurement[index[j][n]]), fullload_hall,configData.horizon[index[j][n]], configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
             else:
                 print('ERROR: calibration-variable can only be true or false!')
                 # write controlvalues into JEVis
-            r.Control_write(configData.objectIds_2[5][index[j][n]], configData.objectIds_2[6][j], fullload[n], heaters[n], configData.jevisUser, configData.jevisPW,configData.webservice)
+            r.Control_write(configData.objectIds.Heaters_variables[index[j][n]], configData.objectIds.Fullload_variables[j], fullload[n], heaters[n], configData.jevisUser, configData.jevisPW,configData.webservice)
     elif systemname in configData.zonenames:
         zonename = systemname
         # zonewise control (In Siosta zonewise control is not correct, if multiple zones are controlled by the same switch/operator, because of the fullload signal!)
@@ -569,15 +570,15 @@ def Controlfunction(systemname,configurationfile,TimeID,calibration='true'):
         heaters = ['']
         if calibration=='true':
             # Starting Regulation-Function given above
-            [fullload, heaters] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds_2[7][i], configData.heaterdata, configData.zonenames[i],configData.weightfactor[i], configData.objectIds_2[2][i],
-                                                         configData.objectIds_2[1][i], configData.objectIds_2[0][i], configData.objectIds_2[3][j], configData.objectIds_2[4][i],
-                                                         configData.objectIds.setpoints[i], len(configData.objectIds_2[0][i]), [0, 0, 0], configData.horizon[i], configData.jevisUser, configData.jevisPW,configData.webservice)
+            [fullload, heaters] = Regulation_calibration(configData.modelfile, TimeID, configData.objectIds.weekend_operation[i], configData.heaterdata, configData.zonenames[i],configData.weightfactor[i], configData.objectIds.Disturbances[i],
+                                                         configData.objectIds.Temperatures[i], configData.objectIds.Heaters_measurement[i], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[i],
+                                                         configData.objectIds.setpoints[i], len(configData.objectIds.Heaters_measurement[i]), [0, 0, 0], configData.horizon[i], configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
         elif calibration=='false':
             # Starting Regulation-Function given above
-            [fullload, heaters] = Regulation(configData.modelfile, TimeID, configData.objectIds_2[7][i], configData.heaterdata, configData.zonenames[i],configData.weightfactor[i], configData.objectIds_2[2][i],
-                                                         configData.objectIds_2[1][i], configData.objectIds_2[0][i], configData.objectIds_2[3][j], configData.objectIds_2[4][i],
-                                                         configData.objectIds.setpoints[i], len(configData.objectIds_2[0][i]), [0, 0, 0],configData.horizon[i], configData.jevisUser, configData.jevisPW,configData.webservice)
+            [fullload, heaters] = Regulation(configData.modelfile, TimeID, configData.objectIds.weekend_operation[i], configData.heaterdata, configData.zonenames[i],configData.weightfactor[i], configData.objectIds.Disturbances[i],
+                                                         configData.objectIds.Temperatures[i], configData.objectIds.Heaters_measurement[i], configData.objectIds.Fullload_measurements[j], configData.objectIds.energetic_measurements[i],
+                                                         setpoints[i], len(configData.objectIds.Heaters_measurement[i]), [0, 0, 0],configData.horizon[i], configData.jevisUser, configData.jevisPW,configData.webservice,configData.objectIds.setpoints_new)
         else:
             print('ERROR: calibration-variable can only be true or false!')
         # write controlvalues into JEVis
-        r.Control_write(configData.objectIds_2[5][i], configData.objectIds_2[6][j], fullload, heaters, configData.jevisUser, configData.jevisPW,configData.webservice)
+        r.Control_write(configData.objectIds.Heaters_variables[i], configData.objectIds.Fullload_variables[j], fullload, heaters, configData.jevisUser, configData.jevisPW,configData.webservice)
