@@ -17,8 +17,8 @@ class JEVis:
         self.password = password
         self.webservice = webservice
 
-    @staticmethod
-    def readSetpoints(SetpointIDS,username,password,webservice):
+
+    def readSetpoints(self,SetpointIDS):
         #controlJevis = ControlJEVisObject()
         list = []
         for i in SetpointIDS:
@@ -27,28 +27,25 @@ class JEVis:
                 list1 = []
                 for k in j:
                     print(k)
-                    list1.append(JEVis.requestSetpoint(k, username, password, webservice))
+                    list1.append(self.requestSetpoint(k))
                 list2.append(list1)
             list.append(list2)
             return list
 
-
-    @staticmethod
-    def write(val, objID, fromD, toD, fromT, toT, gap, username, password, webservice):
+    def write(self,val, objID, fromD, toD, fromT, toT, gap):
         from datetime import datetime, timedelta
         # Write into JEVis ID
-        sampleurl = webservice + '/objects/' + objID + '/attributes/Value/samples'
+        sampleurl = self.webservice + '/objects/' + objID + '/attributes/Value/samples'
         sampleurl = sampleurl + '?' + 'from=' + fromD + 'T' + fromT + '0000&until=' + toD + 'T' + toT + '0000'
-        jevisUser = username
-        jevisPW = password
+        jevisUser = self.username
+        jevisPW = self.password
         datetime = datetime.now() + timedelta(hours=00, minutes=gap)
         Zeit = datetime.astimezone().isoformat(timespec='milliseconds')
         payload = '[{"ts":' + '"' + Zeit + '"' + ',"value": ' + '"' + val + '"''}]'
         post = requests.post(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW), data=payload)
         # print("Post status: ",post)
 
-    @staticmethod
-    def controlWrite(ID_heaters, ID_fullload, fullload, heaters, username, password, webservice):
+    def controlWrite(self,ID_heaters, ID_fullload, fullload, heaters):
         # Function to iterate through all Signals that needed to be written in JEVis
         today = datetime.today()
         print(today)
@@ -58,24 +55,17 @@ class JEVis:
         sizeID = len(ID_heaters)
         for i in range(sizeID):
             for j in range(len(ID_heaters[i])):
-                JEVis.write(str(heaters[i]), ID_heaters[i][j], todayymd, todayymd, timestr1, timestr1, 0, username,
-                            password, webservice)
+                self.write(str(heaters[i]), ID_heaters[i][j], todayymd, todayymd, timestr1, timestr1, 0)
         for i in range(len(ID_fullload)):
-            JEVis.write(str(fullload[0]), ID_fullload[i], todayymd, todayymd, timestr1, timestr1, 0, username, password,
-                        webservice)
-    @staticmethod
-    def read(WeekendID, objID_Heaters, objID_disturbances, objID_energy, objID_temperature, username, password,
-             webservice):
-        # Read all the needed Measurements to solve the control problem (read all recent measurements according to one Zone)
-        print("test3")
-        #print(SetpointIDS)
+            self.write(str(fullload[0]), ID_fullload[i], todayymd, todayymd, timestr1, timestr1, 0)
+    def read(self,WeekendID, objID_Heaters, objID_disturbances, objID_energy, objID_temperature):
         controlJevis = ControlJEVisObject()
 
 
         if WeekendID == '':
             controlJevis.weekendOperation = 0
         else:
-            data = JEVis.request(WeekendID, username, password, webservice)
+            data = self.request(WeekendID)
             # print(data)
             if data != [] and data != [[]]:
                 controlJevis.weekendOperation = int(data[0])
@@ -87,13 +77,13 @@ class JEVis:
         controlJevis.heaterValues = np.zeros((np.size(objID_Heaters)))
         if np.size(objID_Heaters) > 1:
             for i in range(np.size(objID_Heaters)):
-                data = JEVis.request(objID_Heaters[i], username, password, webservice)
+                data = self.request(objID_Heaters[i])
                 if data != []:
                     controlJevis.heaterValues[i] = data[0]
                 else:
                     controlJevis.heaterValues[i] = 0
         else:
-            data = JEVis.request(objID_Heaters, username, password, webservice)
+            data = JEVis.request(objID_Heaters)
             if data != []:
                 controlJevis.heaterValues = data[0]
             else:
@@ -102,53 +92,52 @@ class JEVis:
         if np.size(objID_disturbances) > 1:
             controlJevis.disturbancesValues = np.zeros((np.size(objID_disturbances)))
             for i in range(np.size(objID_disturbances)):
-                data = JEVis.request(objID_disturbances[i], username, password, webservice)
+                data = self.request(objID_disturbances[i])
                 if data != []:
                     controlJevis.disturbancesValues[i] = data[0]
                 else:
                     controlJevis.disturbancesValues[i] = 0
         else:
-            data = JEVis.request(objID_disturbances, username, password, webservice)
+            data = self.request(objID_disturbances)
             controlJevis.disturbancesValues = data[0]
 
         if np.size(objID_energy) > 1:
             controlJevis.energyValues = np.zeros((np.size(objID_energy)))
             for i in range(np.size(objID_energy)):
-                data = JEVis.request(objID_energy[i], username, password, webservice)
+                data = self.request(objID_energy[i])
                 if data != []:
                     controlJevis.energyValues[i] = data[0]
                 else:
                     controlJevis.energyValues[i] = 0
         else:
-            data = JEVis.request(objID_energy[0], username, password, webservice)
+            data = self.request(objID_energy[0])
             controlJevis.energyValues = data[0]
 
         if np.size(objID_energy) > 1:
             controlJevis.energyValues = np.zeros((np.size(objID_energy)))
             for i in range(np.size(objID_energy)):
-                data = JEVis.request(objID_energy[i], username, password, webservice)
+                data = self.request(objID_energy[i])
                 if data != []:
                     controlJevis.energyValues[i] = data[0]
                 else:
                     controlJevis.energyValues[i] = 0
         else:
-            data = JEVis.request(objID_energy[0], username, password, webservice)
+            data = self.request(objID_energy[0])
             controlJevis.energyValues = data[0]
 
-        temperature = JEVis.request(objID_temperature, username, password, webservice)
+        temperature = self.request(objID_temperature)
         controlJevis.temperatureValues = temperature[0]
         print(controlJevis)
         return controlJevis
-    @staticmethod
-    def request(objID, username, password, webservice, datatype="value"):
+    def request(self,objID, datatype="value"):
         # Function to export the most recent Measurement of an Object vie ID
         # Create the URL with the needed Measurement
-        sampleurl = webservice + '/objects/' + objID + '/attributes/Value/samples'
+        sampleurl = self.webservice + '/objects/' + objID + '/attributes/Value/samples'
         sampleurl = sampleurl + '?' + 'onlyLatest=true'
 
         # Username & Password
-        jevisUser = username
-        jevisPW = password
+        jevisUser = self.username
+        jevisPW = self.password
 
         # Read JEVis data with URL, Username & Password
         get = requests.get(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW))
@@ -170,16 +159,15 @@ class JEVis:
         else:
             print(json_data['value'])
 
-    @staticmethod
-    def requestSetpoint(objID, username, password, webservice, datatype="value"):
+    def requestSetpoint(self,objID, datatype="value"):
         # Function to export the most recent Measurement of an Object vie ID
         # Create the URL with the needed Measurement
-        sampleurl = webservice + '/objects/' + str(objID) + '/attributes/Value/samples'
+        sampleurl = self.webservice + '/objects/' + str(objID) + '/attributes/Value/samples'
         sampleurl = sampleurl + '?' + 'onlyLatest=true'
 
         # Username & Password
-        jevisUser = username
-        jevisPW = password
+        jevisUser = self.username
+        jevisPW = self.password
         try:
             # Read JEVis data with URL, Username & Password
             get = requests.get(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW))

@@ -569,55 +569,6 @@ class ControlJEVisObject:
         return "heaters_vals: %s, dist_vals: %s, energie_vals: %s,temperature_vals: %s,weekend_operation: %s" % (self.heaters_vals, self.dist_vals, self.energie_vals, self.temperature_vals, self.weekend_operation)
 
 
-
-#Read values from JEVis for control
-#def Control_read(WeekendID,objID_Heaters,ID_disturbances,ID_energy,ID_temperature,username,password,webservice):
-    #Read
-    #conrolprepJevis=Controlprep(WeekendID,objID_Heaters,ID_disturbances,ID_energy,ID_temperature,username,password,webservice) #Json lesen
-    #Heater
-    #heaters_latest = vals[0]
-    #Temperature
-    #temperature_latest=vals[3]
-    #print('Zonetemperature (latest in JEVis):', conrolprepJevis.temperature_vals)
-    #print("Zonetemperature (latest in JEVis):",conrolprepJevis.temperature_vals)
-    #Disturbances
-    #dist_latest=vals[1]
-    #Energies
-    #energie_latest=vals[2]
-    #Weekend Operation value
-    #weekend_operation = vals[4]
-    #return heaters_latest,temperature_latest,dist_latest,energie_latest,weekend_operation
-    #return conrolprepJevis
-
-
-
-#write values from Control function (see above) to JEVis IDs
-#def JEVis_write(val,objID,fromD,toD,fromT,toT,gap,username,password,webservice):
-    #from datetime import datetime, timedelta
-    # Write into JEVis ID
-    #sampleurl=webservice+'/objects/'+objID+'/attributes/Value/samples'
-    #sampleurl=sampleurl+'?'+'from='+fromD+'T'+fromT+'0000&until='+toD+'T'+toT+'0000'
-    #jevisUser = username
-    #jevisPW = password
-    #datetime=datetime.now()+timedelta(hours=00, minutes=gap)
-    #Zeit=datetime.astimezone().isoformat(timespec='milliseconds')
-    #payload = '[{"ts":'+'"'+ Zeit+'"'+',"value": '+'"'+val+'"''}]'
-    #post = requests.post(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW), data=payload)
-    #print("Post status: ",post)
-
-#def Control_write(ID_heaters, ID_fullload, fullload, heaters,username,password,webservice):
-    # Function to iterate through all Signals that needed to be written in JEVis
-    #today=date.today()
-    #todayymd=today.strftime("%Y%m%d")
-    #now1=datetime.now()
-    #timestr1=now1.strftime("%H%M%S")
-    #sizeID=len(ID_heaters)
-    #for i in range(sizeID):
-    #    for j in range(len(ID_heaters[i])):
-    #        JEVis_write(str(heaters[i]),ID_heaters[i][j],todayymd,todayymd,timestr1,timestr1,0,username,password,webservice)
-    #for i in range(len(ID_fullload)):
-    #    JEVis_write(str(fullload[0]),ID_fullload[i],todayymd,todayymd,timestr1,timestr1,0,username,password,webservice)
-
 def load_model(filename, zonename):
     # loading model from a txt-file and convert JSON-Format (Dictionary) into a python-list
     file = open(filename, 'r')

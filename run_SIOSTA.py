@@ -6,10 +6,10 @@
 import configparser
 
 ### Modelidentification Methods ###
-from total import modelidentification
+#from total import modelidentification
 
 ### Control Methods ###
-from total import Controlfunction
+from total import Control
 
 import os
 # Change the working directory to the script-path.
@@ -21,6 +21,7 @@ configurationfile = 'config.txt'
 config = configparser.ConfigParser()
 config.sections()
 config.read(configurationfile)
+control = Control(configurationfile)
 
 system = config['run']['System']
 system = system.split(', ')
@@ -32,9 +33,9 @@ if config['modelidentification']['run'] == 'yes':
     toTime = config['modelidentification']['to']
     if len(system) > 1:
         for i in range(len(system)):
-            modelidentification(system[i], configurationfile, fromTime, toTime, calibration=calibrationvalue, set_equalHeaterParameter = 'true')
+            control.modelidentification(system[i], configurationfile, fromTime, toTime, calibration=calibrationvalue, set_equalHeaterParameter = 'true')
     else:
-        modelidentification(system[0], configurationfile, fromTime, toTime, calibration=calibrationvalue, set_equalHeaterParameter = 'true')
+        control.modelidentification(system[0], configurationfile, fromTime, toTime, calibration=calibrationvalue, set_equalHeaterParameter = 'true')
 
 # check and run of the control-algorithm
 if config['control']['run'] == 'yes':
@@ -44,8 +45,8 @@ if config['control']['run'] == 'yes':
     if len(system) > 1:
         print("test")
         for i in range(len(system)):
-            Controlfunction(system[i], configurationfile, TimeID,
+            control.Controlfunction(system[i], configurationfile, TimeID,
                             calibration=calibrationvalue)
     elif len(system) == 1:
         print("test2")
-        Controlfunction(system[0], configurationfile, TimeID, calibration=calibrationvalue)
+        control.Controlfunction(system[0], configurationfile, TimeID, calibration=calibrationvalue)
