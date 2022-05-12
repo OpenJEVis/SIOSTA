@@ -5,34 +5,54 @@ from typing import Any
 
 class ConfigLoader:
 
-    @staticmethod
-    def configuration_loader(configurationfile):
-        configData = Config()
+    def __init__(self,configfile) -> None:
+        self.config = self.__loadConfigFile(configfile)
+        self.configData = Config()
+        super().__init__()
+
+
+    def __loadConfigFile(self,configfile):
 
         config = configparser.ConfigParser()
         config.sections()
-        config.read(configurationfile)
+        config.read(configfile)
+        return config
 
-        ConfigLoader.jevisAccess(config, configData)
+        #self.configData = Config()
+
+
+    def load(self):
+        configData = Config()
+
+
+
+        self.__jevisAccess()
 
         # Read Heater-Data (in the Case of Siosta, how much percentage of load is in fullload/partload)
 
-        ConfigLoader.heaterdata(config, configData)
+        self.__heaterdata()
 
         # Read in the System assigned Names and IDs of Signals (meaning the fullload-signals for SIOSTA)
-        ConfigLoader.systems(config, configData)
+        self.__systems()
 
         # read the Zone assigned Names and IDs of Signals
         # Define the sizes of the python arrays and initializing them
-        zonecount = int(config['Systems']['Zone Count'])
+        zonecount = int(self.config['Systems']['Zone Count'])
 
-        Outdoor_Temperature = config['IDs of Disturbances']['Outdoor Temperature']
-        ConfigLoader.loadObjectIds(Outdoor_Temperature, config, configData)
+        Outdoor_Temperature = self.config['IDs of Disturbances']['Outdoor Temperature']
+        self.__loadObjectIds(Outdoor_Temperature)
 
 
-        Outdoor_Temperature = config['IDs of Disturbances']['Outdoor Temperature']
+        Outdoor_Temperature = self.config['IDs of Disturbances']['Outdoor Temperature']
         # Go through all Zones and read the needed Signal IDs
-        ConfigLoader.loadHeaterWrite(config, configData)
+        self.__loadHeaterWrite(self.config, configData)
+
+        self.__loadTimeId()
+        self.__loadRunSystem()
+
+        self.__loadModelidentification()
+
+        self.__loadCalibartion()
 
         # Create a List with all IDs (read-IDs and write-IDs)
         #configData.objectIds_2 = [configData.objectIds.heatersRead, configData.objectIds.temperaturesRead, configData.objectIds.disturbancesRead, configData.objectIds.fullloadRead,
@@ -41,43 +61,43 @@ class ConfigLoader:
                                   #configData.objectIds.fullloadWrite, configData.objectIds.weekendOperationRead]
         return configData
 
-    @staticmethod
-    def loadHeaterWrite(config, configData):
-        for i in range(len(configData.zonenames)):
+
+    def __loadHeaterWrite(self):
+        for i in range(len(self.configData.zonenames)):
             # create the Zonename, that need to be searched in the Config-file
             name = 'IDs Zone ' + str(i + 1)
             Heaters_variable = []
-            for j in config['IDs of Heater Variables'][name].split(";"):
+            for j in self.config['IDs of Heater Variables'][name].split(";"):
                 Heaters_variable_2 = []
                 for k in j.split(","):
                     Heaters_variable_2.append(k.replace(" ", ""))
                 Heaters_variable.append(Heaters_variable_2)
 
-            configData.objectIds.heatersWrite.append(Heaters_variable)
+            self.configData.objectIds.heatersWrite.append(Heaters_variable)
 
-    @staticmethod
-    def loadObjectIds(Outdoor_Temperature, config, configData):
-        for i in configData.zonenames:
-            configData.objectIds.weekendOperationRead.append(config['IDs for Weekend Operation']["IDs " + i])
-            configData.objectIds.temperaturesRead.append(config['IDs of Temperature Measurements']["IDs " + i])
+
+    def __loadObjectIds(self, Outdoor_Temperature):
+        for i in self.configData.zonenames:
+            self.configData.objectIds.weekendOperationRead.append(self.config['IDs for Weekend Operation']["IDs " + i])
+            self.configData.objectIds.temperaturesRead.append(self.config['IDs of Temperature Measurements']["IDs " + i])
             print("configData.objectIds.Temperatures")
-            print(configData.objectIds.temperaturesRead)
-            configData.objectIds.heatersRead.append(
-                config['IDs of Heater Measurements']["IDs " + i].replace(' ', '').split(';'))
-            configData.horizon.append(int(config['control']['horizon ' + i]))
-            configData.weightfactor.append(int(config['control']['weightfactor ' + i]))
+            print(self.configData.objectIds.temperaturesRead)
+            self.configData.objectIds.heatersRead.append(
+                self.config['IDs of Heater Measurements']["IDs " + i].replace(' ', '').split(';'))
+            self.configData.horizon.append(int(self.config['control']['horizon ' + i]))
+            self.configData.weightfactor.append(int(self.config['control']['weightfactor ' + i]))
             # configData.objectIds.Heaters_measurement.append(config['IDs of Heater Measurements']["IDs "+i].replace(' ', '').split(';'))
-            if config['IDs of Disturbances']['Outdoor-Door ' + i] != '':
-                configData.objectIds.disturbancesRead.append(
-                    (Outdoor_Temperature + '; ' + config['IDs of Disturbances']['Outdoor-Door ' + i]).replace(' ',
+            if self.config['IDs of Disturbances']['Outdoor-Door ' + i] != '':
+                self.configData.objectIds.disturbancesRead.append(
+                    (Outdoor_Temperature + '; ' + self.config['IDs of Disturbances']['Outdoor-Door ' + i]).replace(' ',
                                                                                                               '').split(
                         ';'))
             else:
-                configData.objectIds.disturbancesRead.append(Outdoor_Temperature)
-            configData.objectIds.energyRead.append(
-                config['IDs of Energy Consumer Measurements']["IDs " + i].replace(' ', '').split(';'))
+                self.configData.objectIds.disturbancesRead.append(Outdoor_Temperature)
+            self.configData.objectIds.energyRead.append(
+                self.config['IDs of Energy Consumer Measurements']["IDs " + i].replace(' ', '').split(';'))
             Stepoint = []
-            for j in (config["Setpoints2"]["Setpoint " + i]).split(";"):
+            for j in (self.config["Setpoints2"]["Setpoint " + i]).split(";"):
                 Stepoint2 = []
                 for k in j.split(","):
                     if (":" not in k):
@@ -86,44 +106,69 @@ class ConfigLoader:
                         Stepoint2.append(k.replace(" ", ""))
                 Stepoint.append(Stepoint2)
                 StepointID = []
-                for j in (config["Setpoints3"]["Setpoint " + i]).split(";"):
+                for j in (self.config["Setpoints3"]["Setpoint " + i]).split(";"):
                     Stepoint2 = []
                     for k in j.split(","):
                         Stepoint2.append(k.replace(" ", ""))
                     StepointID.append(Stepoint2)
 
-            configData.objectIds.setpointsValues.append(Stepoint)
-            configData.objectIds.setpointsRead.append(StepointID)
-            print(configData.objectIds.setpointsRead)
+            self.configData.objectIds.setpointsValues.append(Stepoint)
+            self.configData.objectIds.setpointsRead.append(StepointID)
+            print(self.configData.objectIds.setpointsRead)
 
-    @staticmethod
-    def systems(config, configData):
-        configData.systemnames = config['Systems']['Systemnames'].split('; ')
-        for i in (configData.systemnames):
-            configData.systems.append(config['Systems'][i].split('; '))
+
+    def __systems(self):
+        self.configData.systemnames = self.config['Systems']['Systemnames'].split('; ')
+        for i in (self.configData.systemnames):
+            self.configData.systems.append(self.config['Systems'][i].split('; '))
             x = re.findall("[0-9]", i)[0]
-            configData.objectIds.fullloadRead.append(config['Fullload Signal Measurements']['ID Fullload ' + x])
-            configData.objectIds.fullloadWrite.append((config['Fullload Variables']['ID Fullload ' + x]).replace(' ', '').split(','))
-        for i in configData.systems:
+            self.configData.objectIds.fullloadRead.append(self.config['Fullload Signal Measurements']['ID Fullload ' + x])
+            self.configData.objectIds.fullloadWrite.append((self.config['Fullload Variables']['ID Fullload ' + x]).replace(' ', '').split(','))
+        for i in self.configData.systems:
             for j in i:
-                configData.zonenames.append(j)
+                self.configData.zonenames.append(j)
 
-    @staticmethod
-    def heaterdata(config, configData):
-        configData.heaterdata.append(float(config['Heater data sheet']['Fullload']))
-        configData.heaterdata.append(float(config['Heater data sheet']['partial load']))
 
-    @staticmethod
-    def jevisAccess(config, configData):
+    def __heaterdata(self):
+        self.configData.heaterdata.append(float(self.config['Heater data sheet']['Fullload']))
+        self.configData.heaterdata.append(float(self.config['Heater data sheet']['partial load']))
+
+
+    def __jevisAccess(self):
         # Read URL, User and PW for the JEVis-Service
-        configData.jevisUser = config['JEVis-Service']['jevisUser']
-        configData.jevisPW = config['JEVis-Service']['jevisPW']
-        configData.webservice = config['JEVis-Service']['webservice']
+        self.configData.jevisUser = self.config['JEVis-Service']['jevisUser']
+        self.configData.jevisPW = self.config['JEVis-Service']['jevisPW']
+        self.configData.webservice = self.config['JEVis-Service']['webservice']
         # Read the model-file Name (probably also the path need to be in there!)
-        configData.modelfile = config['Models']['File']
+        self.configData.modelfile = self.config['Models']['File']
 
+
+    def __loadTimeId(self):
+        self.configData.timeID = self.config['run']['TimeID']
+
+
+    def __loadRunSystem(self):
+        system = self.config['run']['System']
+        self.configData.runSystems = system.split(', ')
+
+
+    def __loadModelidentification(self):
+        self.configData.runModellIdentification = self.config['modelidentification']['run']
+        self.configData.modelidentificationFrom = self.config['modelidentification']['from']
+        self.configData.toTime = self.config['modelidentification']['to']
+
+
+
+    def __loadCalibartion(self):
+        self.configData.calibrationValue = self.config['run']['calibration']
+
+    def __loadRunControl(self):
+        self.configData = self.config = self.config['control']['run']
 
 class Config:
+    def __repr__(self) -> str:
+        return super().__repr__()
+
     def __init__(self):
         self.jevisUser = None
         self.jevisPW = None
@@ -137,13 +182,19 @@ class Config:
         self.weightfactor = []
         self.horizon = []
         self.setpoint = []
-
-
-    def __str__(self):
-        return "jevisUser: " +self.jevisUser +"jevisPW: "+self.jevisPW +"webservice: "+str(self.webservice)+"modelfile: "+self.modelfile +"heaterdata: "+str(self.heaterdata) +"systems: "+str(self.systems)+"systemnames: "+str(self.systemnames)+"zonenames: "+str(self.zonenames) + "objectIds: "+str(self.objectIds) + "weightfactor: "+str(self.weightfactor) +"horizon: "+ str(self.horizon)+ "setpoint" +str(self.setpoint) +"objectIds_2: "+str(self.objectIds_2)
+        self.timeID = None
+        self.runSystems = None
+        self.runModellIdentification = None
+        self.runControl = None
+        self.modelidentificationFrom = None
+        self.modelidentificationTo = None
+        self.calibrationValue = None
 
 
 class ObjectIDs:
+    def __repr__(self) -> str:
+        return super().__repr__()
+
     def __setattr__(self, name: str, value: Any) -> None:
         super().__setattr__(name, value)
 
@@ -158,8 +209,3 @@ class ObjectIDs:
         self.weekendOperationRead = []
         self.setpointsValues = []
         self.setpointsRead =[]
-
-    def __str__(self):
-        return "Heaters_measurement: " + str(self.disturbancesRead) + "Temperatures: " + str(self.temperaturesRead) + "Disturbances: " + str(self.disturbancesRead) + "Fullload_measurements: " + str(self.fullloadRead) + "energetic_measurements: " + str(self.energyRead) + "Heaters_variables: " + str(self.heatersWrite) +\
-               "Fullload_variables: " + str(self.fullloadWrite) + "weekend_operation: " + str(self.weekendOperationRead) + "setpoints: " + str(self.setpointsValues) + "setpoints_new: " + str(self.setpointsRead)
-

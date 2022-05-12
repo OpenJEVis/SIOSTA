@@ -185,6 +185,9 @@ class JEVis:
 
 
 class ControlJEVisObject:
+    def __repr__(self) -> str:
+        return super().__repr__()
+
     def __init__(self):
         self.heaterValues = []
         self.disturbancesValues = []
@@ -192,6 +195,3 @@ class ControlJEVisObject:
         self.temperatureValues = []
         self.weekendOperation = []
         self.setpointValues = []
-
-    def __str__(self):
-        return "heaters_vals: %s, dist_vals: %s, energie_vals: %s,temperature_vals: %s,weekend_operation: %s" % (self.heaterValues, self.disturbancesValues, self.energyValues, self.temperatureValues, self.weekendOperation)
