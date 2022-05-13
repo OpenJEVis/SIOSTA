@@ -30,9 +30,9 @@ if confData.runModellIdentification == 'yes':
 
     if len(confData.runSystems) > 1:
         for i in range(len(confData.runSystems)):
-            control.modelidentification(confData.runSystems[i], configurationfile, confData.modelidentificationFrom, confData.modelidentificationTo, calibration=confData.calibrationValue, set_equalHeaterParameter ='true')
+            control.modelidentification(confData.runSystems[i],  confData.modelidentificationFrom, confData.modelidentificationTo, calibration=confData.calibrationValue, set_equalHeaterParameter ='true')
     else:
-        control.modelidentification(confData.system[0], configurationfile, confData.modelidentificationFrom, confData.modelidentificationTo, calibration=confData.calibrationValue, set_equalHeaterParameter = 'true')
+        control.modelidentification(confData.runSystems[0],  confData.modelidentificationFrom, confData.modelidentificationTo, calibration=confData.calibrationValue, set_equalHeaterParameter = 'true')
 
 # check and run of the control-algorithm
 print(confData.runControl)

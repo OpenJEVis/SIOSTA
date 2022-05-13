@@ -17,30 +17,13 @@ import RegFUNKTIONS as r
 ##toT = to time (according to UST standard)
 ##username = jevisUser
 ##password = jevisPW
+from JEVis import JEVis
 
-def JEVISDataprep(objID,fromD,toD,fromT,toT,username,password,webservice):
-    # Data preparation for importing Signal-trends for a given time Period
-    ##Username & Password
-    jevisUser = username
-    jevisPW = password
 
-    # starting Time as datetime class
+def JEVISDataprep(objID,fromD,toD,fromT,toT,jevis):
     start = datetime.datetime.strptime(fromD + 'T:' + fromT, '%Y%m%dT:%H')
 
-    # get latest data to get information about timezone:
-    sampleurl = webservice + '/objects/' + objID + '/attributes/Value/samples'
-    sampleurl = sampleurl + '?' + 'onlyLatest=true'
-    get = requests.get(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW))
-
-    if get.text == 'Object not found':
-        print('ID ', objID, 'not found!')
-        json_data = []
-    else:
-        json_data = json.loads(get.text)
-
-    #print(json_data)
-    t = datetime.datetime.strptime(json_data['ts'], "%Y-%m-%dT%H:%M:%S.000%z")
-    timezone = t.strftime('%z')
+    timezone = jevis.requestTimeZone(objID)
 
     # convert local time to utc time:
     start = datetime.datetime.strptime(fromD + 'T:' + fromT + timezone, '%Y%m%dT:%H%z')
@@ -52,39 +35,11 @@ def JEVISDataprep(objID,fromD,toD,fromT,toT,username,password,webservice):
     toD = end.strftime('%Y%m%d')
     toT = end.strftime('%H')
 
-    # URL Construction for Data download
-    sampleurl=webservice+'/objects/'+objID+'/attributes/Value/samples'
-    sampleurl=sampleurl+'?'+'from='+fromD+'T'+fromT+'0000&until='+toD+'T'+toT+'0000'
 
-    # Read JEVis data with URL, Username & Password
-    get = requests.get(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW))
-    
-    ##print data
-    #print("Get status: ",get)
-    #print("Samples in JEVis: ",get.content)
-    
-    # put the read JEVis data as new variable
-    if get.text == 'Object not found':
-        print('ID ', objID, 'not found!')
-        json_data = []
-    else:
-        json_data = json.loads(get.text)
-    
-    # convert the data from json format to numpy array format
-    length_json=np.size(json_data) #size detection of json 
-    
-    # initialization of variables with values and times
-    vals=np.zeros((length_json)) #values (eg. values of the heater states, door states)
-    times=np.empty((length_json),dtype="S29") #times 
-    
-    #  inserting values and time data to initialized variables
-    for i in range(length_json):
-        vals[i]=json_data[i]['value']
-        #times[i]=json_data[i]['ts']
+    vals,times = jevis.requestDataBetween(objID,fromD,fromT,toD,toT)
 
-        ts = datetime.datetime.strptime(json_data[i]['ts'], "%Y-%m-%dT%H:%M:%S.000%z")
-        ts_utc = ts.astimezone(pytz.utc)
-        times[i] = datetime.datetime.strftime(ts_utc, '%Y-%m-%dT%H:%M:%S.000%z')
+    print(vals)
+    print(times)
 
     ##Output: Values and times corresponding to the Object ID given
     return [vals, times], fromD, fromT, toD, toT
@@ -191,20 +146,20 @@ def Fullload(heaterdata, heater,fullload):
 # example:
 # [temperature,temperatureout,Disturbancesp,heater]=totalprep('18886',2,'9845','19847','19851','20210206','20210216','23','23',10)
 
-def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturbance,objID_temp,objID_fullload,objID_energy,fromD,toD,fromT,toT,username,password,webservice):
+def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturbance,objID_temp,objID_fullload,objID_energy,fromD,toD,fromT,toT,jevis):
     # initialize measurement arrays
     heater = [''] * number_heaters
     heaterm = [''] * number_heaters
     # Iteration through all heaters
     for i in range(number_heaters):
         # import from JEVis
-        [heater[i],fromD_utc, fromT_utc, toD_utc, toT_utc]  = JEVISDataprep(objID_heater[i], fromD, toD, fromT, toT, username, password, webservice)
+        [heater[i],fromD_utc, fromT_utc, toD_utc, toT_utc]  = JEVISDataprep(objID_heater[i], fromD, toD, fromT, toT,jevis)
         if len(heater[i][0]) == 0:
-            heater[i][0] = r.read(objID_heater[i], username, password, webservice)
+            heater[i][0] = jevis.requestLastValue(objID_heater[i])
         # Convert to a 5 minute-basis
         heaterm[i] = Minutebasis(heater[i],fromD_utc,toD_utc,fromT_utc,toT_utc)
     # Importing Temperature States
-    [temperature,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_temp, fromD, toD, fromT, toT, username, password, webservice)
+    [temperature,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_temp, fromD, toD, fromT, toT, jevis)
     temperaturem = Minutebasis(temperature, fromD_utc, toD_utc, fromT_utc, toT_utc)
 
     # create second temperature array shifted by one timestep for the parameteridentification
@@ -218,14 +173,14 @@ def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturban
         Floadm = np.ones((int(np.size(heaterm)/len(heaterm)), 1))
     else:
         # Import from JEVis
-        [Fload,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_fullload, fromD, toD, fromT, toT, username, password, webservice)
+        [Fload,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_fullload, fromD, toD, fromT, toT, jevis)
         # Convert to a 5 minute-basis
         Floadm = Minutebasis(Fload,fromD_utc,toD_utc,fromT_utc,toT_utc)
     # Check how many Disturbances the Zone has, fist Disturbance always is the Outside Temperature
     if isinstance(objID_disturbance, list) == False:
         # If a Zone has just one Disturbance (meaning the outside Temperature)
         # Import from JEVis
-        [Disturbances,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_disturbance, fromD, toD, fromT, toT, username, password, webservice)
+        [Disturbances,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_disturbance, fromD, toD, fromT, toT,jevis)
         # Convert to a 5 minute-basis
         if np.size(Disturbances) > 0:
             Disturbancesp = Minutebasis(Disturbances,fromD_utc,toD_utc,fromT_utc,toT_utc)
@@ -239,7 +194,7 @@ def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturban
 
         for i in range(nd):
             # import from JEVis
-            [Disturbances,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_disturbance[i], fromD, toD, fromT, toT, username, password, webservice)
+            [Disturbances,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_disturbance[i], fromD, toD, fromT, toT, jevis)
             # Convert to a 5 minute-basis
             if np.size(Disturbances) > 0:
                 Disturbancesp[:, i] = np.reshape(Minutebasis(Disturbances,fromD_utc,toD_utc,fromT_utc,toT_utc), (nsamples))
@@ -261,7 +216,7 @@ def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturban
     if WeekendID == '':
         weekend_operation = np.zeros((nsamples, 1))
     else:
-        [weekend_operation_read, fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(WeekendID, fromD, toD, fromT, toT, username, password, webservice)
+        [weekend_operation_read, fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(WeekendID, fromD, toD, fromT, toT, jevis)
 
         if weekend_operation_read != [] and weekend_operation_read != [[]]:
             weekend_operation = Minutebasis(weekend_operation_read, fromD_utc, toD_utc, fromT_utc, toT_utc)
@@ -274,7 +229,7 @@ def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturban
         if isinstance(objID_energy, list) == False:
             # if only one is avaiable
             # import from JEVis
-            [Energies,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_energy, fromD, toD, fromT, toT, username, password, webservice)
+            [Energies,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_energy, fromD, toD, fromT, toT, jevis)
             # convert to a 5 minute-basis
             Energiesp = Minutebasis(Energies,fromD_utc,toD_utc,fromT_utc,toT_utc)
         else:
@@ -288,7 +243,7 @@ def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturban
                 # Iteration through the Energy IDs
                 # Import from JEVis
                 #print(objID_energy[i])
-                [Energies,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_energy[i], fromD, toD, fromT, toT, username, password, webservice)
+                [Energies,fromD_utc, fromT_utc, toD_utc, toT_utc] = JEVISDataprep(objID_energy[i], fromD, toD, fromT, toT, jevis)
 
                 # convert to a 5 minute-basis
                 Energiesp[:, i] = np.reshape(Minutebasis(Energies,fromD_utc,toD_utc,fromT_utc,toT_utc), (nsamples))

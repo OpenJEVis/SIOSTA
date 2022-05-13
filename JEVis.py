@@ -1,9 +1,11 @@
 import json
-from datetime import datetime
+import datetime
 
 import numpy as np
 import requests
 from requests.auth import HTTPBasicAuth
+
+import pytz
 from ConfigLoader import *
 
 from RegFUNKTIONS import Controlprep
@@ -27,7 +29,7 @@ class JEVis:
                 list1 = []
                 for k in j:
                     print(k)
-                    list1.append(self.requestSetpoint(k))
+                    list1.append(self.requestLastValueSetpoint(k))
                 list2.append(list1)
             list.append(list2)
         return list
@@ -47,10 +49,10 @@ class JEVis:
 
     def controlWrite(self,ID_heaters, ID_fullload, fullload, heaters):
         # Function to iterate through all Signals that needed to be written in JEVis
-        today = datetime.today()
+        today = datetime.datetime.today()
         print(today)
         todayymd = today.strftime("%Y%m%d")
-        now1 = datetime.now()
+        now1 = datetime.datetime.now()
         timestr1 = now1.strftime("%H%M%S")
         sizeID = len(ID_heaters)
         for i in range(sizeID):
@@ -65,7 +67,7 @@ class JEVis:
         if WeekendID == '':
             controlJevis.weekendOperation = 0
         else:
-            data = self.request(WeekendID)
+            data = self.requestLastValue(WeekendID)
             # print(data)
             if data != [] and data != [[]]:
                 controlJevis.weekendOperation = int(data[0])
@@ -77,13 +79,13 @@ class JEVis:
         controlJevis.heaterValues = np.zeros((np.size(objID_Heaters)))
         if np.size(objID_Heaters) > 1:
             for i in range(np.size(objID_Heaters)):
-                data = self.request(objID_Heaters[i])
+                data = self.requestLastValue(objID_Heaters[i])
                 if data != []:
                     controlJevis.heaterValues[i] = data[0]
                 else:
                     controlJevis.heaterValues[i] = 0
         else:
-            data = JEVis.request(objID_Heaters)
+            data = JEVis.requestLastValue(objID_Heaters)
             if data != []:
                 controlJevis.heaterValues = data[0]
             else:
@@ -92,44 +94,44 @@ class JEVis:
         if np.size(objID_disturbances) > 1:
             controlJevis.disturbancesValues = np.zeros((np.size(objID_disturbances)))
             for i in range(np.size(objID_disturbances)):
-                data = self.request(objID_disturbances[i])
+                data = self.requestLastValue(objID_disturbances[i])
                 if data != []:
                     controlJevis.disturbancesValues[i] = data[0]
                 else:
                     controlJevis.disturbancesValues[i] = 0
         else:
-            data = self.request(objID_disturbances)
+            data = self.requestLastValue(objID_disturbances)
             controlJevis.disturbancesValues = data[0]
 
         if np.size(objID_energy) > 1:
             controlJevis.energyValues = np.zeros((np.size(objID_energy)))
             for i in range(np.size(objID_energy)):
-                data = self.request(objID_energy[i])
+                data = self.requestLastValue(objID_energy[i])
                 if data != []:
                     controlJevis.energyValues[i] = data[0]
                 else:
                     controlJevis.energyValues[i] = 0
         else:
-            data = self.request(objID_energy[0])
+            data = self.requestLastValue(objID_energy[0])
             controlJevis.energyValues = data[0]
 
         if np.size(objID_energy) > 1:
             controlJevis.energyValues = np.zeros((np.size(objID_energy)))
             for i in range(np.size(objID_energy)):
-                data = self.request(objID_energy[i])
+                data = self.requestLastValue(objID_energy[i])
                 if data != []:
                     controlJevis.energyValues[i] = data[0]
                 else:
                     controlJevis.energyValues[i] = 0
         else:
-            data = self.request(objID_energy[0])
+            data = self.requestLastValue(objID_energy[0])
             controlJevis.energyValues = data[0]
 
-        temperature = self.request(objID_temperature)
+        temperature = self.requestLastValue(objID_temperature)
         controlJevis.temperatureValues = temperature[0]
         print(controlJevis)
         return controlJevis
-    def request(self,objID, datatype="value"):
+    def requestLastValue(self, objID, datatype="value"):
         # Function to export the most recent Measurement of an Object vie ID
         # Create the URL with the needed Measurement
         sampleurl = self.webservice + '/objects/' + objID + '/attributes/Value/samples'
@@ -159,18 +161,18 @@ class JEVis:
         else:
             print(json_data['value'])
 
-    def requestSetpoint(self,objID, datatype="value"):
+
+
+    def requestLastValueSetpoint(self, objID, datatype="value"):
         # Function to export the most recent Measurement of an Object vie ID
         # Create the URL with the needed Measurement
         sampleurl = self.webservice + '/objects/' + str(objID) + '/attributes/Value/samples'
         sampleurl = sampleurl + '?' + 'onlyLatest=true'
 
         # Username & Password
-        jevisUser = self.username
-        jevisPW = self.password
         try:
             # Read JEVis data with URL, Username & Password
-            get = requests.get(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW))
+            get = requests.get(sampleurl, auth=HTTPBasicAuth(self.username, self.password))
             print(get.text)
             if get.text == 'Object not found':
                 print('ID ', objID, 'not found!')
@@ -181,6 +183,54 @@ class JEVis:
                 return json_data["value"]
         except Exception:
             print("error")
+
+
+    def requestDataBetween(self, objID, startDate, startTime, endDate, endTime):
+
+        sampleurl = self.webservice + '/objects/' + str(objID) + '/attributes/Value/samples'
+        sampleurl = sampleurl + '?' + 'from=' + startDate + 'T' + startTime + '0000&until=' + endDate + 'T' + endTime + '0000'
+        get = requests.get(sampleurl, auth=HTTPBasicAuth(self.username, self.password))
+
+        if get.text == 'Object not found':
+            print('ID ', objID, 'not found!')
+            json_data = []
+        else:
+            json_data = json.loads(get.text)
+
+        length_json = np.size(json_data)  # size detection of json
+
+        # initialization of variables with values and times
+        vals = np.zeros((length_json))  # values (eg. values of the heater states, door states)
+        times = np.empty((length_json), dtype="S29")  # times
+
+        for i in range(length_json):
+            vals[i] = json_data[i]['value']
+            # times[i]=json_data[i]['ts']
+
+            ts = datetime.datetime.strptime(json_data[i]['ts'], "%Y-%m-%dT%H:%M:%S.000%z")
+            ts_utc = ts.astimezone(pytz.utc)
+            times[i] = datetime.datetime.strftime(ts_utc, '%Y-%m-%dT%H:%M:%S.000%z')
+
+
+        return vals ,times
+
+
+    def requestTimeZone(self,objID,):
+
+        sampleurl = self.webservice + '/objects/' + objID + '/attributes/Value/samples'
+        sampleurl = sampleurl + '?' + 'onlyLatest=true'
+        get = requests.get(sampleurl, auth=HTTPBasicAuth(self.username, self.password))
+
+        if get.text == 'Object not found':
+            print('ID ', objID, 'not found!')
+            json_data = []
+        else:
+            json_data = json.loads(get.text)
+
+        t = datetime.datetime.strptime(json_data['ts'], "%Y-%m-%dT%H:%M:%S.000%z")
+        timezone = t.strftime('%z')
+
+        return timezone
 
 
 

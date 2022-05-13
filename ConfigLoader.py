@@ -154,7 +154,7 @@ class ConfigLoader:
     def __loadModelidentification(self):
         self.configData.runModellIdentification = self.config['modelidentification']['run']
         self.configData.modelidentificationFrom = self.config['modelidentification']['from']
-        self.configData.toTime = self.config['modelidentification']['to']
+        self.configData.modelidentificationTo = self.config['modelidentification']['to']
 
 
 

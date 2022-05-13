@@ -20,7 +20,7 @@ class Control:
 
     def identification(self,fromD,toD,fromT,toT,set_equalHeaterParameter,index,indexFullload):
         # Read and prepare measured Data of the given Timeperiod
-        [Temperature,OUTTemperature,Disturbances,Heater,Energies,weekend_operation]=p.totalprep(self.configData.timeID[index],self.configData.heaterdata, self.configData.objectIds.heatersRead[index],len(self.configData.objectIds.heatersRead[index]),self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.temperaturesRead[index],self.configData.objectIds.fullloadRead[indexFullload],self.configData.objectIds.energyRead[index],fromD,toD,fromT,toT,self.configData.jevisUser,self.configData.jevisPW,self.configData.webservice)
+        [Temperature,OUTTemperature,Disturbances,Heater,Energies,weekend_operation]=p.totalprep(self.configData.timeID,self.configData.heaterdata, self.configData.objectIds.heatersRead[index],len(self.configData.objectIds.heatersRead[index]),self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.temperaturesRead[index],self.configData.objectIds.fullloadRead[indexFullload],self.configData.objectIds.energyRead[index],fromD,toD,fromT,toT,self.jevis)
         # Parameteridentification into a decomposed Tensor, the outcome is a Python-List including all the Model-Data (Parametervector --> Value Information, Factormatrices --> Structure Information)
         Params=p.decparamIDD(Heater, Temperature, Disturbances, Energies, OUTTemperature, set_equalHeaterParameter = set_equalHeaterParameter)
         # Safe Model Data (Parametervector --> Value Information, Factormatrices --> Structure Information) as a JSON-String into the Model-File
@@ -29,7 +29,7 @@ class Control:
 
     def identification_with_calibration(self,fromD,toD,fromT,toT,set_equalHeaterParameter,index,indexFullload):
         # Read and prepare measured Data of the given Timeperiod
-        [Temperature,OUTTemperature,Disturbances,Heater,Energies,weekend_operation]=p.totalprep(self.configData.timeID[index],self.configData.heaterdata, self.configData.objectIds.heatersRead[index],len(self.configData.objectIds.heatersRead[index]),self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.temperaturesRead[index],self.configData.objectIds.fullloadRead[indexFullload],self.configData.objectIds.energyRead[index],fromD,toD,fromT,toT,self.configData.jevisUser,self.configData.jevisPW,self.configData.webservice)
+        [Temperature,OUTTemperature,Disturbances,Heater,Energies,weekend_operation]=p.totalprep(self.configData.timeID,self.configData.heaterdata, self.configData.objectIds.heatersRead[index],len(self.configData.objectIds.heatersRead[index]),self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.temperaturesRead[index],self.configData.objectIds.fullloadRead[indexFullload],self.configData.objectIds.energyRead[index],fromD,toD,fromT,toT,self.jevis)
         # Parameteridentification into a decomposed Tensor, the outcome is a Python-List including all the Model-Data (Parametervector --> Value Information, Factormatrices --> Structure Infromation, Calibrationvectors --> Calibration Information)
         Params = p.decomposed_Parameteridentification_with_calibration(Heater, Temperature, Disturbances, Energies, OUTTemperature, set_equalHeaterParameter = set_equalHeaterParameter)
         # Safe Model Data (Parametervector --> Value Information, Factormatrices --> Structure Infromation, Calibrationvectors --> Calibration Information) as a JSON-String into the Model-File
@@ -40,7 +40,7 @@ class Control:
 
     def Validation(self,fromDv,toDv,fromTv,toTv,scale,Params,index,indexFullload):
         # Read and prepare measured Data of the given Timeperiod
-        [Temperature,OUTTemperature,Disturbances,Heater,Energies,weekend_operation]=p.totalprep(self.configData.timeID[index],self.configData.heaterdata, self.configData.objectIds.heatersRead[index],len(self.configData.objectIds.heatersRead[index]),self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.temperaturesRead[index],self.configData.objectIds.fullloadRead[indexFullload],self.configData.objectIds.energyRead[index],fromDv,toDv,fromTv,toTv,self.configData.jevisUser,self.configData.jevisPW,self.configData.webservice)
+        [Temperature,OUTTemperature,Disturbances,Heater,Energies,weekend_operation]=p.totalprep(self.configData.timeID[index],self.configData.heaterdata, self.configData.objectIds.heatersRead[index],len(self.configData.objectIds.heatersRead[index]),self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.temperaturesRead[index],self.configData.objectIds.fullloadRead[indexFullload],self.configData.objectIds.energyRead[index],fromDv,toDv,fromTv,toTv,self.jevis)
         # Calculating Zonetemperature-Trend with the given Signals and the Model-Data, starting with the initial-measured Temperature
         Estimated_temp=p.decvalidS(self.configData.zonenames[index], Heater, Temperature[0], Disturbances, Energies, Params)
         # Dump Data
@@ -51,7 +51,7 @@ class Control:
 
     def Validation_with_calibration(self,fromDv,toDv,fromTv,toTv,scale,Params,index,indexFullload):
         # Read and prepare measured Data of the given Timeperiod
-        [Temperature,OUTTemperature,Disturbances,Heater,Energies,weekend_operation]=p.totalprep(self.configData.timeID[index],self.configData.heaterdata, self.configData.objectIds.heatersRead[index],len(self.configData.objectIds.heatersRead[index]),self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.temperaturesRead[index],self.configData.objectIds.fullloadRead[indexFullload],self.configData.objectIds.energyRead[index],fromDv,toDv,fromTv,toTv,self.configData.jevisUser,self.configData.jevisPW,self.configData.webservice)
+        [Temperature,OUTTemperature,Disturbances,Heater,Energies,weekend_operation]=p.totalprep(self.configData.timeID[index],self.configData.heaterdata, self.configData.objectIds.heatersRead[index],len(self.configData.objectIds.heatersRead[index]),self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.temperaturesRead[index],self.configData.objectIds.fullloadRead[indexFullload],self.configData.objectIds.energyRead[index],fromDv,toDv,fromTv,toTv,self.jevis)
         # Calculating Zonetemperature-Trend with the given Signals and the Model-Data, starting with the initial-measured Temperature
         Estimated_temp=p.decvalidS_with_calibration(self.configData.zonenames[index], Heater, Temperature[0], Disturbances, Energies, Params)
         # Dump Data
