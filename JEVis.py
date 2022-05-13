@@ -30,7 +30,7 @@ class JEVis:
                     list1.append(self.requestSetpoint(k))
                 list2.append(list1)
             list.append(list2)
-            return list
+        return list
 
     def write(self,val, objID, fromD, toD, fromT, toT, gap):
         from datetime import datetime, timedelta

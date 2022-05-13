@@ -21,7 +21,9 @@ configurationfile = 'config.txt'
 
 configLoader = ConfigLoader(configurationfile)
 confData = configLoader.load()
-control = Control(configurationfile)
+control = Control(confData)
+
+
 
 
 if confData.runModellIdentification == 'yes':
@@ -33,12 +35,13 @@ if confData.runModellIdentification == 'yes':
         control.modelidentification(confData.system[0], configurationfile, confData.modelidentificationFrom, confData.modelidentificationTo, calibration=confData.calibrationValue, set_equalHeaterParameter = 'true')
 
 # check and run of the control-algorithm
+print(confData.runControl)
 if confData.runControl == 'yes':
     if len(confData.runSystems) > 1:
         print("test")
         for i in range(len(confData.runSystems)):
-            control.Controlfunction(confData.system[i], configurationfile, confData.timeID,
+            control.Controlfunction(confData.runSystems[i], configurationfile,
                             calibration=confData.calibrationValue)
     elif len(confData.runSystems) == 1:
         print("test2")
-        control.Controlfunction(confData.system[0], configurationfile, confData.timeID, calibration=confData.calibrationValue)
+        control.Controlfunction(confData.runSystems[0], configurationfile, calibration=confData.calibrationValue)

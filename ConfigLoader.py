@@ -22,7 +22,8 @@ class ConfigLoader:
 
 
     def load(self):
-        configData = Config()
+        #configData = Config()
+
 
 
 
@@ -30,10 +31,10 @@ class ConfigLoader:
 
         # Read Heater-Data (in the Case of Siosta, how much percentage of load is in fullload/partload)
 
-        self.__heaterdata()
+        self.heaterdata()
 
         # Read in the System assigned Names and IDs of Signals (meaning the fullload-signals for SIOSTA)
-        self.__systems()
+        self.systems()
 
         # read the Zone assigned Names and IDs of Signals
         # Define the sizes of the python arrays and initializing them
@@ -45,7 +46,7 @@ class ConfigLoader:
 
         Outdoor_Temperature = self.config['IDs of Disturbances']['Outdoor Temperature']
         # Go through all Zones and read the needed Signal IDs
-        self.__loadHeaterWrite(self.config, configData)
+        self.__loadHeaterWrite()
 
         self.__loadTimeId()
         self.__loadRunSystem()
@@ -54,12 +55,8 @@ class ConfigLoader:
 
         self.__loadCalibartion()
 
-        # Create a List with all IDs (read-IDs and write-IDs)
-        #configData.objectIds_2 = [configData.objectIds.heatersRead, configData.objectIds.temperaturesRead, configData.objectIds.disturbancesRead, configData.objectIds.fullloadRead,
-                                  #configData.objectIds.energyRead,
-                                  #configData.objectIds.heatersWrite,
-                                  #configData.objectIds.fullloadWrite, configData.objectIds.weekendOperationRead]
-        return configData
+        self.__loadRunControl()
+        return self.configData
 
 
     def __loadHeaterWrite(self):
@@ -80,8 +77,8 @@ class ConfigLoader:
         for i in self.configData.zonenames:
             self.configData.objectIds.weekendOperationRead.append(self.config['IDs for Weekend Operation']["IDs " + i])
             self.configData.objectIds.temperaturesRead.append(self.config['IDs of Temperature Measurements']["IDs " + i])
-            print("configData.objectIds.Temperatures")
-            print(self.configData.objectIds.temperaturesRead)
+            #print("configData.objectIds.Temperatures")
+            #print(self.configData.objectIds.temperaturesRead)
             self.configData.objectIds.heatersRead.append(
                 self.config['IDs of Heater Measurements']["IDs " + i].replace(' ', '').split(';'))
             self.configData.horizon.append(int(self.config['control']['horizon ' + i]))
@@ -114,10 +111,10 @@ class ConfigLoader:
 
             self.configData.objectIds.setpointsValues.append(Stepoint)
             self.configData.objectIds.setpointsRead.append(StepointID)
-            print(self.configData.objectIds.setpointsRead)
 
 
-    def __systems(self):
+
+    def systems(self):
         self.configData.systemnames = self.config['Systems']['Systemnames'].split('; ')
         for i in (self.configData.systemnames):
             self.configData.systems.append(self.config['Systems'][i].split('; '))
@@ -129,7 +126,7 @@ class ConfigLoader:
                 self.configData.zonenames.append(j)
 
 
-    def __heaterdata(self):
+    def heaterdata(self):
         self.configData.heaterdata.append(float(self.config['Heater data sheet']['Fullload']))
         self.configData.heaterdata.append(float(self.config['Heater data sheet']['partial load']))
 
@@ -141,6 +138,8 @@ class ConfigLoader:
         self.configData.webservice = self.config['JEVis-Service']['webservice']
         # Read the model-file Name (probably also the path need to be in there!)
         self.configData.modelfile = self.config['Models']['File']
+        print("test")
+        print(self.configData.modelfile)
 
 
     def __loadTimeId(self):
@@ -163,9 +162,15 @@ class ConfigLoader:
         self.configData.calibrationValue = self.config['run']['calibration']
 
     def __loadRunControl(self):
-        self.configData = self.config = self.config['control']['run']
+        self.configData.runControl = self.config['control']['run']
+        print(self.config['control']['run'])
 
 class Config:
+
+
+    def __str__(self) -> str:
+        return super().__str__()
+
     def __repr__(self) -> str:
         return super().__repr__()
 
@@ -192,6 +197,9 @@ class Config:
 
 
 class ObjectIDs:
+    def __str__(self) -> str:
+        return super().__str__()
+
     def __repr__(self) -> str:
         return super().__repr__()
 
