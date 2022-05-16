@@ -1,11 +1,11 @@
 ### Modelidentification Methods ###
-from total import modelidentification
+from Control import modelidentification
 
 ### Control Methods ###
-from total import Controlfunction
+from Control import Controlfunction
 
 ### Plot and Valuation of Models ###
-from total import validation_plot
+from Control import validation_plot
 from Auswertung import Controlvalidation
 from Auswertung import ClosedLoopValidation
 

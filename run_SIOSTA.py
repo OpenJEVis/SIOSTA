@@ -10,7 +10,7 @@ import configparser
 
 ### Control Methods ###
 from ConfigLoader import ConfigLoader
-from total import Control
+from Control import Control
 
 import os
 # Change the working directory to the script-path.
@@ -21,6 +21,7 @@ configurationfile = 'config.txt'
 
 configLoader = ConfigLoader(configurationfile)
 confData = configLoader.load()
+print(confData)
 control = Control(confData)
 
 

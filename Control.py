@@ -75,7 +75,7 @@ class Control:
         # read the current measured Data needed for the Control-Algortihm (Disturbances, Temperature, Heater)
         jevisValues = self.jevis.read(self.configData.objectIds.weekendOperationRead[index],self.configData.objectIds.heatersRead[index],self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.energyRead[index], self.configData.objectIds.temperaturesRead[index])
         # Read the current time and convert to a date- and a time-string
-        [now_day, now_time] = r.Time_reader(self.configData.timeID,self.configData.jevisUser,self.configData.jevisPW,self.configData.webservice)
+        [now_day, now_time] = r.Time_reader(self.configData.timeID,self.jevis)
         # create a Array of Setpoints for the given Control-Horizon
         Setpoint = r.Set_Setpoint(setpoints[0], setpoints[1], jevisValues.weekendOperation, now_day, now_time, self.configData.horizon[index])
         print("Setpoint")
@@ -94,7 +94,7 @@ class Control:
         # read the current measured Data needed for the Control-Algortihm (Disturbances, Temperature, Heater)
         jevisValues = self.jevis.read(self.configData.objectIds.weekendOperationRead[index],self.configData.objectIds.heatersRead[index],self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.energyRead[index], self.configData.objectIds.temperaturesRead[index])
         # Read the current time and convert to a date- and a time-string
-        [now_day, now_time] = r.Time_reader(self.configData.timeID,self.configData.jevisUser,self.configData.jevisPW,self.configData.webservice)
+        [now_day, now_time] = r.Time_reader(self.configData.timeID,self.jevis)
         # create a Array of Setpoints for the given Control-Horizon
 
         #Setpoint = r.Set_Setpoint(self.configData.objectIds.setpointsValues[index][0], self.configData.objectIds.setpointsValues[index][0], jevisValues.weekendOperation, now_day, now_time, self.configData.horizon[index])

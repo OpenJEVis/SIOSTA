@@ -1,3 +1,4 @@
+import dataclasses
 import json
 import datetime
 
@@ -8,7 +9,6 @@ from requests.auth import HTTPBasicAuth
 import pytz
 from ConfigLoader import *
 
-from RegFUNKTIONS import Controlprep
 
 
 
@@ -28,8 +28,8 @@ class JEVis:
             for j in i:
                 list1 = []
                 for k in j:
-                    print(k)
-                    list1.append(self.requestLastValueSetpoint(k))
+                    #print(k)
+                    list1.append(self.requestLastValue(k,datatype="value"))
                 list2.append(list1)
             list.append(list2)
         return list
@@ -50,7 +50,7 @@ class JEVis:
     def controlWrite(self,ID_heaters, ID_fullload, fullload, heaters):
         # Function to iterate through all Signals that needed to be written in JEVis
         today = datetime.datetime.today()
-        print(today)
+        #print(today)
         todayymd = today.strftime("%Y%m%d")
         now1 = datetime.datetime.now()
         timestr1 = now1.strftime("%H%M%S")
@@ -62,6 +62,8 @@ class JEVis:
             self.write(str(fullload[0]), ID_fullload[i], todayymd, todayymd, timestr1, timestr1, 0)
     def read(self,WeekendID, objID_Heaters, objID_disturbances, objID_energy, objID_temperature):
         controlJevis = ControlJEVisObject()
+        #controlJevis.setpointValues
+
 
 
         if WeekendID == '':
@@ -131,7 +133,7 @@ class JEVis:
         controlJevis.temperatureValues = temperature[0]
         print(controlJevis)
         return controlJevis
-    def requestLastValue(self, objID, datatype="value"):
+    def requestLastValue(self, objID, datatype="array"):
         # Function to export the most recent Measurement of an Object vie ID
         # Create the URL with the needed Measurement
         sampleurl = self.webservice + '/objects/' + objID + '/attributes/Value/samples'
@@ -143,13 +145,14 @@ class JEVis:
 
         # Read JEVis data with URL, Username & Password
         get = requests.get(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW))
+        #print(get.text)
 
         if get.text == 'Object not found':
             print('ID ', objID, 'not found!')
             json_data = []
         else:
             json_data = json.loads(get.text)
-        if(datatype == "value"):
+        if(datatype == "array"):
             # inserting values
             vals = np.zeros(1)
             if json_data == []:
@@ -159,30 +162,30 @@ class JEVis:
             # Output: latest Values corresponding to the Object ID given
             return [vals]
         else:
-            print(json_data['value'])
+            return json_data["value"]
 
 
 
-    def requestLastValueSetpoint(self, objID, datatype="value"):
-        # Function to export the most recent Measurement of an Object vie ID
-        # Create the URL with the needed Measurement
-        sampleurl = self.webservice + '/objects/' + str(objID) + '/attributes/Value/samples'
-        sampleurl = sampleurl + '?' + 'onlyLatest=true'
-
-        # Username & Password
-        try:
-            # Read JEVis data with URL, Username & Password
-            get = requests.get(sampleurl, auth=HTTPBasicAuth(self.username, self.password))
-            print(get.text)
-            if get.text == 'Object not found':
-                print('ID ', objID, 'not found!')
-                return 0
-            else:
-                json_data = json.loads(get.text)
-                print(json_data)
-                return json_data["value"]
-        except Exception:
-            print("error")
+    # def requestLastValueSetpoint(self, objID, datatype="value"):
+    #     # Function to export the most recent Measurement of an Object vie ID
+    #     # Create the URL with the needed Measurement
+    #     sampleurl = self.webservice + '/objects/' + str(objID) + '/attributes/Value/samples'
+    #     sampleurl = sampleurl + '?' + 'onlyLatest=true'
+    #
+    #     # Username & Password
+    #     try:
+    #         # Read JEVis data with URL, Username & Password
+    #         get = requests.get(sampleurl, auth=HTTPBasicAuth(self.username, self.password))
+    #         print(get.text)
+    #         if get.text == 'Object not found':
+    #             print('ID ', objID, 'not found!')
+    #             return 0
+    #         else:
+    #             json_data = json.loads(get.text)
+    #             print(json_data)
+    #             return json_data["value"]
+    #     except Exception:
+    #         print("error")
 
 
     def requestDataBetween(self, objID, startDate, startTime, endDate, endTime):
@@ -233,10 +236,14 @@ class JEVis:
         return timezone
 
 
-
+@dataclasses.dataclass
 class ControlJEVisObject:
-    def __repr__(self) -> str:
-        return super().__repr__()
+
+    heaterValues : []
+    disturbancesValues : []
+    energyValues : []
+    temperatureValues : []
+    weekendOperation : []
 
     def __init__(self):
         self.heaterValues = []
@@ -244,4 +251,3 @@ class ControlJEVisObject:
         self.energyValues = []
         self.temperatureValues = []
         self.weekendOperation = []
-        self.setpointValues = []

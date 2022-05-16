@@ -2,7 +2,7 @@
 import ParamFUNKTIONS as p
 import RegFUNKTIONS as r
 import AlgorithmValidation as a
-import total as t
+import Control as t
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta

@@ -1,4 +1,5 @@
 import configparser
+import dataclasses
 import re
 from typing import Any
 
@@ -165,14 +166,58 @@ class ConfigLoader:
         self.configData.runControl = self.config['control']['run']
         print(self.config['control']['run'])
 
+@dataclasses.dataclass
+class ObjectIDs:
+
+
+    heatersRead : []
+    temperaturesRead : []
+    disturbancesRead : []
+    fullloadRead : []
+    energyRead : []
+    heatersWrite : []
+    fullloadWrite : []
+    weekendOperationRead : []
+    setpointsValues : []
+    setpointsRead : []
+
+    def __init__(self):
+        self.heatersRead = []
+        self.temperaturesRead = []
+        self.disturbancesRead = []
+        self.fullloadRead = []
+        self.energyRead = []
+        self.heatersWrite = []
+        self.fullloadWrite = []
+        self.weekendOperationRead = []
+        self.setpointsValues = []
+        self.setpointsRead =[]
+
+
+
+@dataclasses.dataclass
 class Config:
 
 
-    def __str__(self) -> str:
-        return super().__str__()
-
-    def __repr__(self) -> str:
-        return super().__repr__()
+    jevisUser : str
+    jevisPW : str
+    webservice : str
+    modelfile : str
+    heaterdata : []
+    systems : []
+    systemnames : []
+    zonenames = []
+    objectIds : ObjectIDs
+    weightfactor = []
+    horizon = []
+    setpoint = []
+    timeID = None
+    runSystems = str
+    runModellIdentification = str
+    runControl = str
+    modelidentificationFrom = str
+    modelidentificationTo = str
+    calibrationValue = str
 
     def __init__(self):
         self.jevisUser = None
@@ -196,24 +241,70 @@ class Config:
         self.calibrationValue = None
 
 
-class ObjectIDs:
-    def __str__(self) -> str:
-        return super().__str__()
 
-    def __repr__(self) -> str:
-        return super().__repr__()
 
-    def __setattr__(self, name: str, value: Any) -> None:
-        super().__setattr__(name, value)
+    # def __str__(self) -> str:
+    #     return super().__str__()
+    #
+    # def __repr__(self) -> str:
+    #     return super().__repr__()
+    #
+    # def __init__(self):
+    #     self.jevisUser = None
+    #     self.jevisPW = None
+    #     self.webservice = None
+    #     self.modelfile = None
+    #     self.heaterdata = []
+    #     self.systems = []
+    #     self.systemnames = []
+    #     self.zonenames = []
+    #     self.objectIds = ObjectIDs()
+    #     self.weightfactor = []
+    #     self.horizon = []
+    #     self.setpoint = []
+    #     self.timeID = None
+    #     self.runSystems = None
+    #     self.runModellIdentification = None
+    #     self.runControl = None
+    #     self.modelidentificationFrom = None
+    #     self.modelidentificationTo = None
+    #     self.calibrationValue = None
 
-    def __init__(self):
-        self.heatersRead = []
-        self.temperaturesRead = []
-        self.disturbancesRead = []
-        self.fullloadRead = []
-        self.energyRead = []
-        self.heatersWrite = []
-        self.fullloadWrite = []
-        self.weekendOperationRead = []
-        self.setpointsValues = []
-        self.setpointsRead =[]
+
+# class ObjectIDs:
+#     def __init__(self) -> None:
+#         super().__init__()
+#
+#     heatersRead : []
+#     temperaturesRead : []
+#     disturbancesRead : []
+#     fullloadRead : []
+#     energyRead : []
+#     heatersWrite : []
+#     fullloadWrite : []
+#     weekendOperationRead : []
+#     setpointsValues : []
+#     setpointsRead : []
+#
+#
+#
+#     # def __str__(self) -> str:
+#     #     return super().__str__()
+#     #
+#     # def __repr__(self) -> str:
+#     #     return super().__repr__()
+#     #
+#     # def __setattr__(self, name: str, value: Any) -> None:
+#     #     super().__setattr__(name, value)
+#     #
+#     # def __init__(self):
+#     #     self.heatersRead = []
+#     #     self.temperaturesRead = []
+#     #     self.disturbancesRead = []
+#     #     self.fullloadRead = []
+#     #     self.energyRead = []
+#     #     self.heatersWrite = []
+#     #     self.fullloadWrite = []
+#     #     self.weekendOperationRead = []
+#     #     self.setpointsValues = []
+#     #     self.setpointsRead =[]
