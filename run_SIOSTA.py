@@ -6,10 +6,11 @@
 import configparser
 
 ### Modelidentification Methods ###
-from total import modelidentification
+#from total import modelidentification
 
 ### Control Methods ###
-from total import Controlfunction
+from ConfigLoader import ConfigLoader
+from Control import Control
 
 import os
 # Change the working directory to the script-path.
@@ -18,32 +19,30 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 # Name of the configuration-file used (where all Parameters and Set-Ups are defined)
 configurationfile = 'config.txt'
 
-config = configparser.ConfigParser()
-config.sections()
-config.read(configurationfile)
+configLoader = ConfigLoader(configurationfile)
+confData = configLoader.load()
+print(confData)
+control = Control(confData)
 
-system = config['run']['System']
-system = system.split(', ')
-calibrationvalue = config['run']['calibration']
 
-# check and run of the modelidentification-algorithm
-if config['modelidentification']['run'] == 'yes':
-    fromTime = config['modelidentification']['from']
-    toTime = config['modelidentification']['to']
-    if len(system) > 1:
-        for i in range(len(system)):
-            modelidentification(system[i], configurationfile, fromTime, toTime, calibration=calibrationvalue, set_equalHeaterParameter = 'true')
+
+
+if confData.runModellIdentification == 'yes':
+
+    if len(confData.runSystems) > 1:
+        for i in range(len(confData.runSystems)):
+            control.modelidentification(confData.runSystems[i],  confData.modelidentificationFrom, confData.modelidentificationTo, calibration=confData.calibrationValue, set_equalHeaterParameter ='true')
     else:
-        modelidentification(system[0], configurationfile, fromTime, toTime, calibration=calibrationvalue, set_equalHeaterParameter = 'true')
+        control.modelidentification(confData.runSystems[0],  confData.modelidentificationFrom, confData.modelidentificationTo, calibration=confData.calibrationValue, set_equalHeaterParameter = 'true')
 
 # check and run of the control-algorithm
-if config['control']['run'] == 'yes':
-    TimeID = config['run']['TimeID']
-    #horizonperiod = int(config['control']['horizon'])
-    #weightfactor = int(config['control']['weightfactor'])
-    if len(system) > 1:
-        for i in range(len(system)):
-            Controlfunction(system[i], configurationfile, TimeID,
-                            calibration=calibrationvalue)
-    elif len(system) == 1:
-        Controlfunction(system[0], configurationfile, TimeID, calibration=calibrationvalue)
+print(confData.runControl)
+if confData.runControl == 'yes':
+    if len(confData.runSystems) > 1:
+        print("test")
+        for i in range(len(confData.runSystems)):
+            control.Controlfunction(confData.runSystems[i], configurationfile,
+                            calibration=confData.calibrationValue)
+    elif len(confData.runSystems) == 1:
+        print("test2")
+        control.Controlfunction(confData.runSystems[0], configurationfile, calibration=confData.calibrationValue)
