@@ -9,15 +9,18 @@ import configparser
 #from total import modelidentification
 
 ### Control Methods ###
+import sys
+
 from ConfigLoader import ConfigLoader
 from Control import Control
 
 import os
 # Change the working directory to the script-path.
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
-
+#print(sys.argv[0])
 # Name of the configuration-file used (where all Parameters and Set-Ups are defined)
-configurationfile = 'config.txt'
+configurationfile = sys.argv[1]
+
 
 configLoader = ConfigLoader(configurationfile)
 confData = configLoader.load()

@@ -104,7 +104,7 @@ class ConfigLoader:
                         Stepoint2.append(k.replace(" ", ""))
                 Stepoint.append(Stepoint2)
                 StepointID = []
-                for j in (self.config["Setpoints3"]["Setpoint " + i]).split(";"):
+                for j in (self.config["Setpoints"]["Setpoint " + i]).split(";"):
                     Stepoint2 = []
                     for k in j.split(","):
                         Stepoint2.append(k.replace(" ", ""))
