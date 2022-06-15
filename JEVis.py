@@ -134,6 +134,7 @@ class JEVis:
         print(controlJevis)
         return controlJevis
     def requestLastValue(self, objID, datatype="array"):
+        print(objID)
         # Function to export the most recent Measurement of an Object vie ID
         # Create the URL with the needed Measurement
         sampleurl = self.webservice + '/objects/' + objID + '/attributes/Value/samples'
@@ -145,7 +146,7 @@ class JEVis:
 
         # Read JEVis data with URL, Username & Password
         get = requests.get(sampleurl, auth=HTTPBasicAuth(jevisUser, jevisPW))
-        #print(get.text)
+        print(get.text)
 
         if get.text == 'Object not found':
             print('ID ', objID, 'not found!')
@@ -162,7 +163,7 @@ class JEVis:
             # Output: latest Values corresponding to the Object ID given
             return [vals]
         else:
-            return json_data["value"]
+            return json_data["value"].replace("\"","")
 
 
 

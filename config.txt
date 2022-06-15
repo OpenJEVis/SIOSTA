@@ -63,8 +63,8 @@ weightfactor Zone 11 = 3
 
 ###### SET UP ######
 [JEVis-Service]
-jevisUser = 
-jevisPW = 
+jevisUser = jsc
+jevisPW = EarlyBird8!
 webservice = https://ws101.jevis.de:443/JEWebService/v1
 
 [Models]
@@ -198,7 +198,7 @@ ID Fullload 2 = 23543, 24029, 24030
 ID Fullload 3 = 23544, 24044, 24045
 ID Fullload 4 = 24067, 24068, 24069
 
-[Setpoints]
+[Setpoints2]
 #Room Temperature in Degree Celsius with timestemps in UTC
 Setpoint Zone 1 = 00:00:00, 14; 04:00:00, 19.5; 17:00:00, 14
 Setpoint Zone 2 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
@@ -211,3 +211,17 @@ Setpoint Zone 8 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
 Setpoint Zone 9 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
 Setpoint Zone 10 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
 Setpoint Zone 11 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
+
+[Setpoints]
+#Room Temperature in Degree Celsius with timestemps in UTC
+Setpoint Zone 1 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 2 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 3 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 4 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 5 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 6 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 7 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 8 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 9 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 10 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 11 = 25622, 25622, 25622; 25626, 25653, 25656

@@ -123,8 +123,11 @@ class ConfigLoader:
             self.configData.objectIds.fullloadRead.append(self.config['Fullload Signal Measurements']['ID Fullload ' + x])
             self.configData.objectIds.fullloadWrite.append((self.config['Fullload Variables']['ID Fullload ' + x]).replace(' ', '').split(','))
         for i in self.configData.systems:
-            for j in i:
+           for j in i:
+                print(j)
                 self.configData.zonenames.append(j)
+        print(self.configData.zonenames)
+
 
 
     def heaterdata(self):
@@ -203,21 +206,21 @@ class Config:
     jevisPW : str
     webservice : str
     modelfile : str
-    heaterdata : []
-    systems : []
-    systemnames : []
-    zonenames = []
-    objectIds : ObjectIDs
-    weightfactor = []
-    horizon = []
-    setpoint = []
-    timeID = None
     runSystems = str
     runModellIdentification = str
     runControl = str
     modelidentificationFrom = str
+    timeID = None
     modelidentificationTo = str
     calibrationValue = str
+    systems : []
+    systemnames : []
+    zonenames : []
+    heaterdata : []
+    weightfactor : []
+    horizon : []
+    setpoint : []
+    objectIds : ObjectIDs
 
     def __init__(self):
         self.jevisUser = None

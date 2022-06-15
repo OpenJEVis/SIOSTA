@@ -10,6 +10,8 @@ import math
 import ParamFUNKTIONS as p
 
 def Set_Setpoint(Setpoint_array, Time_array, weekend_operation, daynow, time_now, horizon, time_interval="00:05:00"):
+    print(Setpoint_array)
+    print(Time_array)
     # Function for returning the Setpoints of a given future (event/time) horizon in an array for further calculations (model prediction control methods)
     # Setpoint_array and Time_array need to be arrays of the same size
     # times need to be a 'HH:MM:SS'-string

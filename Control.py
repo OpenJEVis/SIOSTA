@@ -17,6 +17,7 @@ class Control:
         #confloader = ConfigLoader("config.txt")
         #self.configData = confloader.load()
         self.jevis = JEVis(self.configData.jevisUser,self.configData.jevisPW,self.configData.webservice)
+        self.zone = ["Zone 1","Zone 2","Zone 3","Zone 4","Zone 5","Zone 6","Zone 7","Zone 8","Zone 9","Zone 10","Zone 11"]
 
     def identification(self,fromD,toD,fromT,toT,set_equalHeaterParameter,index,indexFullload):
         # Read and prepare measured Data of the given Timeperiod
@@ -77,7 +78,7 @@ class Control:
         # Read the current time and convert to a date- and a time-string
         [now_day, now_time] = r.Time_reader(self.configData.timeID,self.jevis)
         # create a Array of Setpoints for the given Control-Horizon
-        Setpoint = r.Set_Setpoint(setpoints[0], setpoints[1], jevisValues.weekendOperation, now_day, now_time, self.configData.horizon[index])
+        Setpoint = r.Set_Setpoint(setpoints[index][0], setpoints[index][1], jevisValues.weekendOperation, now_day, now_time, self.configData.horizon[index])
         print("Setpoint")
         print(Setpoint)
         # Control-Algorithm, calculating the optimal Controlvalues with the given Weightening for the next 3 Timesteps
@@ -88,20 +89,29 @@ class Control:
         return fullload, heaters
 
     def Regulation_calibration(self,fullload_hall,index,setpoints):
+        #print()
         print(setpoints[index])
+        print(self.zone[index])
+
+
         # loading model data of a given zone into a python-list from the modelfile
         ModellParam = r.load_model_with_calibration(self.configData.modelfile, self.configData.zonenames[index])
+        print()
         # read the current measured Data needed for the Control-Algortihm (Disturbances, Temperature, Heater)
         jevisValues = self.jevis.read(self.configData.objectIds.weekendOperationRead[index],self.configData.objectIds.heatersRead[index],self.configData.objectIds.disturbancesRead[index], self.configData.objectIds.energyRead[index], self.configData.objectIds.temperaturesRead[index])
         # Read the current time and convert to a date- and a time-string
+        print(jevisValues)
         [now_day, now_time] = r.Time_reader(self.configData.timeID,self.jevis)
+        print(now_day)
+        print(now_time)
         # create a Array of Setpoints for the given Control-Horizon
 
         #Setpoint = r.Set_Setpoint(self.configData.objectIds.setpointsValues[index][0], self.configData.objectIds.setpointsValues[index][0], jevisValues.weekendOperation, now_day, now_time, self.configData.horizon[index])
         Setpoint = r.Set_Setpoint(setpoints[index][0], setpoints[index][1], jevisValues.weekendOperation, now_day, now_time, self.configData.horizon[index])
+        print(Setpoint)
         # Control-Algorithm, calculating the optimal Controlvalues with the given Weightening for the next 3 Timesteps
-
-        Controlvalues = r.Control_with_calibration(self.configData.heaterdata, jevisValues.temperatureValues, len(self.configData.objectIds.heatersRead[index]), jevisValues.disturbancesValues, jevisValues.energyValues, Setpoint, ModellParam, fullload_hall,
+        print(self.configData)
+        Controlvalues = r.Control_with_calibration(self.configData.heaterdata, jevisValues.temperatureValues, len(jevisValues.heaterValues), jevisValues.disturbancesValues, jevisValues.energyValues, Setpoint, ModellParam, fullload_hall,
                                                self.configData.weightfactor[index], self.configData.horizon[index])
         # Split the Controlvalues (0 / 1 / 2) into Heater ( on(1) / off(0) ) and fullload ( on(1) / off(0) ) signals
         [fullload, heaters] = r.Fullload_sep(self.configData.heaterdata, Controlvalues, jevisValues.heaterValues, len(self.configData.objectIds.heatersRead[index]), fullload_hall)
@@ -349,7 +359,7 @@ class Control:
                 print(self.configData.zonenames[index[j][n]])
                 if calibration=='true':
                     # Starting Regulation-Function given above
-                    [fullload[n], heaters[n]] = self.Regulation_calibration([0, 0, 0], index[j][n])
+                    [fullload[n], heaters[n]] = self.Regulation_calibration([0, 0, 0], index[j][n],setpoints)
                 elif calibration=='false':
                     # Starting Regulation-Function given above
                     [fullload[n], heaters[n]] = self.Regulation([0, 0, 0], index[j][n], setpoints)
@@ -370,7 +380,7 @@ class Control:
                 print(self.configData.zonenames[index[j][n]])
                 if calibration=='true':
                     # Starting Regulation-Function given above, with the given fullload-demand
-                    [fullload[n], heaters[n]] = self.Regulation_calibration([0, 0, 0], index[j][n])
+                    [fullload[n], heaters[n]] = self.Regulation_calibration([0, 0, 0], index[j][n],setpoints)
                 elif calibration=='false':
                     # Starting Regulation-Function given above, with the given fullload-demand
                     [fullload[n], heaters[n]] = self.Regulation([0, 0, 0], index[j][n], setpoints)
