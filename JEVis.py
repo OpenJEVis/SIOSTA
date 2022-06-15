@@ -190,17 +190,21 @@ class JEVis:
 
 
     def requestDataBetween(self, objID, startDate, startTime, endDate, endTime):
+        print(objID)
 
         sampleurl = self.webservice + '/objects/' + str(objID) + '/attributes/Value/samples'
         sampleurl = sampleurl + '?' + 'from=' + startDate + 'T' + startTime + '0000&until=' + endDate + 'T' + endTime + '0000'
+        print(self.username)
+        print(self.password)
+        print(sampleurl)
         get = requests.get(sampleurl, auth=HTTPBasicAuth(self.username, self.password))
-
+        print(get.content)
         if get.text == 'Object not found':
             print('ID ', objID, 'not found!')
             json_data = []
         else:
             json_data = json.loads(get.text)
-
+        print(json_data)
         length_json = np.size(json_data)  # size detection of json
 
         # initialization of variables with values and times

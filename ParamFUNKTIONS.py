@@ -38,8 +38,8 @@ def JEVISDataprep(objID,fromD,toD,fromT,toT,jevis):
 
     vals,times = jevis.requestDataBetween(objID,fromD,fromT,toD,toT)
 
-    print(vals)
-    print(times)
+    #print(vals)
+    #print(times)
 
     ##Output: Values and times corresponding to the Object ID given
     return [vals, times], fromD, fromT, toD, toT
@@ -52,6 +52,7 @@ def JEVISDataprep(objID,fromD,toD,fromT,toT,jevis):
 ##daysnumber: no. of days (creation of minute basis data for daysnumber days)
 def Minutebasis(Data,fromD,toD,fromT,toT):
     vals=Data[0] #extract values
+    #print(Data)
     length=np.size(vals) #size calculation
     dates=Data[1] #extract dates and times
     # conversion of dates to an array of date strings
