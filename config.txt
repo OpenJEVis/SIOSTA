@@ -27,8 +27,8 @@ calibration = true
 # run: yes/no
 run = no
 # time-period for identification from ... to ...
-from = 20211113
-to = 20211213
+from = 20220201
+to = 20220207
 
 [control]
 # run: yes/no
@@ -63,13 +63,13 @@ weightfactor Zone 11 = 3
 
 ###### SET UP ######
 [JEVis-Service]
-jevisUser = jsc
-jevisPW = EarlyBird8!
-webservice = https://ws101.jevis.de:443/JEWebService/v1
+jevisUser = xxx
+jevisPW = xxx
+webservice = xxx
 
 [Models]
 # Model-file Name (probably also the path need to be in here!)
-File = Models.txt
+File = Models4.txt
 
 [Heater data sheet]
 Fullload = 1
@@ -87,39 +87,30 @@ System 4 = Zone 11
 
 [IDs for Weekend Operation]
 # JEVis IDs for Weekend Operation recognition
-IDs Zone 1 = 
-IDs Zone 2 = 
-IDs Zone 3 = 
-IDs Zone 4 = 
-IDs Zone 5 = 
+IDs Zone 1 = 24910
+IDs Zone 2 = 24910
+IDs Zone 3 = 24910
+IDs Zone 4 = 24910
+IDs Zone 5 = 24910
 IDs Zone 6 = 
 IDs Zone 7 = 
-IDs Zone 8 = 
-IDs Zone 9 = 
-IDs Zone 10 = 
-IDs Zone 11 = 
+IDs Zone 8 = 24961
+IDs Zone 9 = 24961
+IDs Zone 10 = 24961
+IDs Zone 11 = 24910
 
 [IDs of Temperature Measurements]
 IDs Zone 1 = 19847
 IDs Zone 2 = 18848
-#18849
 IDs Zone 3 = 18852
 IDs Zone 4 = 18844
-#18845
 IDs Zone 5 = 18846
-#18847
 IDs Zone 6 = 19857
-#19858
 IDs Zone 7 = 18854
-#18855
 IDs Zone 8 = 18838
-#18839
 IDs Zone 9 = 18834
-#18835
 IDs Zone 10 = 18836
-#18837
 IDs Zone 11 = 18840
-#18841
 
 [IDs of Heater Measurements]
 # "; " trennen die Variablen
@@ -136,7 +127,7 @@ IDs Zone 10 = 18931; 18930; 18929; 18928
 IDs Zone 11 = 18904; 18903; 18902; 18901
 
 [IDs of Disturbances]
-Outdoor Temperature = 9845
+Outdoor Temperature = 4350
 
 # Doors connecting to the outside
 Outdoor-Door Zone 1 =
@@ -179,7 +170,7 @@ ID Fullload 4 =
 # "," trennen die Zeitstempel, "; " trennen die Variablen
 # bsp: Strahler 1 jetzt, Strahler 1 +5min, Strahler 1 +10min; Strahler 2 jetzt, Strahler 2 +5min, Strahler 2 +10min
 IDs Zone 1 = 23501, 24072, 24073; 23499, 24074, 24075
-IDs Zone 2 = 23502, 24076, 24077; 23505, 24078, 24079
+IDs Zone 2 = 23502, 24076, 24077; 23505, 24078, 24859
 IDs Zone 3 = 23507, 24090, 24091; 23509, 24092, 24093; 23508, 24094, 24095
 IDs Zone 4 = 23500, 24082, 24083; 23503, 24086, 24087; 23506, 24088, 24089
 IDs Zone 5 = 23510, 24096, 24097; 23511, 24098, 24099
@@ -214,14 +205,14 @@ Setpoint Zone 11 = 00:00:00, 14; 04:00:00, 19; 17:00:00, 14
 
 [Setpoints]
 #Room Temperature in Degree Celsius with timestemps in UTC
-Setpoint Zone 1 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 2 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 3 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 4 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 5 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 6 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 7 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 8 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 9 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 10 = 25622, 25622, 25622; 25626, 25653, 25656
-Setpoint Zone 11 = 25622, 25622, 25622; 25626, 25653, 25656
+Setpoint Zone 1 = 25036, 25039, 25042;25037, 25040, 25043
+Setpoint Zone 2 = 25046, 25049, 25052;25047, 25050, 25053
+Setpoint Zone 3 = 25056, 25059, 25062;25057, 25060, 25063
+Setpoint Zone 4 = 25066, 25069, 25072;25067, 25070 , 25073
+Setpoint Zone 5 = 25076, 25079, 25082;25070, 25083, 25077
+Setpoint Zone 6 = 24973, 24979, 24978;24980, 24982, 24981
+Setpoint Zone 7 = 24985, 24988, 24991;24986, 24989, 24992
+Setpoint Zone 8 = 24996, 24999, 25002;24997, 25000, 25003
+Setpoint Zone 9 = 25006, 25009, 25012;25007, 25010, 25013
+Setpoint Zone 10 = 25016, 25019, 25022;25017, 25020, 25023
+Setpoint Zone 11 = 25026, 25029, 25032;25027, 25030, 25033

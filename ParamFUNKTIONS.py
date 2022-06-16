@@ -178,6 +178,8 @@ def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturban
         # Convert to a 5 minute-basis
         Floadm = Minutebasis(Fload,fromD_utc,toD_utc,fromT_utc,toT_utc)
     # Check how many Disturbances the Zone has, fist Disturbance always is the Outside Temperature
+    print("dis")
+    print(objID_disturbance)
     if isinstance(objID_disturbance, list) == False:
         # If a Zone has just one Disturbance (meaning the outside Temperature)
         # Import from JEVis
@@ -254,7 +256,8 @@ def totalprep(WeekendID, heaterdata, objID_heater,number_heaters,objID_disturban
 
     # convert heater and fullload measurements to trinary (0 / 1 / 2) signals for the heaters
     heater = Fullload(heaterdata, heaterm, Floadm)
-    
+    #print(temperature)
+    #print(Disturbancesp)
     return [temperature,temperatureout,Disturbancesp,heater,Energiesp,weekend_operation]
 
 
